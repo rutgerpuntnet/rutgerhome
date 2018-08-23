@@ -31,6 +31,9 @@ public class WateringService {
     @Value("${watering.minutes.default}")
     private int defaultWateringMinutes;
 
+    @Value("${watering.initial.mm}")
+    private int initialMillimeters;
+
     @Value("${watering.minutes.maximum}")
     private int maxWateringMinutes;
 
@@ -99,12 +102,17 @@ public class WateringService {
         if (gardenArduino == null) {
             message.setText(String.format("De tuinsproeier heeft zojuist NIET gesproeid.\n" +
                     "Dit is gebaseerd op de volgende KNMI gegevens:\n%s\n\n\n" +
-                    "De hoeveelheid neerslag was groter of gelijk aan de verdamping van het water:\n%s", printWeatherData(weatherData)));
+                    "De hoeveelheid neerslag was groter of gelijk aan de verdamping van het water vermeerdert met %d mm,", printWeatherData(weatherData), initialMillimeters));
         } else {
             if(weatherData.isPresent()) {
                 message.setText(String.format("De tuinsproeier heeft zojuist voor %d minuten gesproeid.\n" +
-                        "Dit is gebaseerd op de volgende KNMI gegevens:\n%s\n\n\n" +
-                        "Hieronder volgt de response van de arduino:\n%s", minutes, printWeatherData(weatherData), gardenArduino.toString()));
+                        "Dit is gebaseerd op de volgende gegevens van de afgelopen dag:\n" +
+                        "%d mm initiele wateraanvulling, %f mm verdamping en %f mm neerslag.\n" +
+                        "Dit geeft een totale aanvulling van %f mm water, tegen een factor van %f mm sproeien per minuut" +
+                        "\nComplete KNMI data:\n%s\n\n\n" +
+                        "Hieronder volgt de response van de arduino:\n%s", minutes, initialMillimeters,
+                        weatherData.get().get(WeatherDataType.EV24), weatherData.get().get(WeatherDataType.RH),
+                        printWeatherData(weatherData), gardenArduino.toString()));
             } else {
                 message.setText(String.format("De tuinsproeier heeft zojuist voor %d minuten gesproeid.\n" +
                         "De KNMI data is het afgelopen uur helaas niet succesvol ontvangen waardoor is gekozen voor de standaardwaarde." +
@@ -142,7 +150,7 @@ public class WateringService {
             final Double totalPrecip = incomingWeatherData.get().get(WeatherDataType.RH);
             final Double mmLost = makkink - totalPrecip;
             if (mmLost > 0) {
-                result = Math.round(mmLost / MILLIMETER_PER_MINUTE);
+                result = Math.round((mmLost + initialMillimeters) / MILLIMETER_PER_MINUTE);
             } else {
                 result = 0;
             }
@@ -152,5 +160,10 @@ public class WateringService {
 
     public Map<WeatherDataType, Double> getLatestWeatherData(){
         return latestWeatherData;
+    }
+
+    private class Minutes {
+        private long finalMinutes;
+        private double mmLost;
     }
 }
