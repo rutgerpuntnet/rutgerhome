@@ -2,12 +2,16 @@ package net.rutger.home.domain;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
@@ -17,6 +21,7 @@ import java.util.Optional;
 @Entity
 @Data
 @NoArgsConstructor
+@ToString
 public class WateringJobData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +35,9 @@ public class WateringJobData {
     private Double maxTemperature;
     private int numberOfMinutes;
     private Integer minutesLeft;
+
+    @LastModifiedDate
+    private LocalDateTime updatedOn;
 
     public WateringJobData(final Optional<Map<WeatherDataType, Double>> weatherData, final int numberOfMinutes) {
         this.numberOfMinutes = numberOfMinutes;

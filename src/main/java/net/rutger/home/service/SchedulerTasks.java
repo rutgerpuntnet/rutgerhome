@@ -20,7 +20,7 @@ public class SchedulerTasks {
     @Scheduled(cron = "${schedule.watering.cron}")
     public void runGardenWateringJobTask() {
         log.info("run GardenWateringTask");
-        wateringJobService.checkWateringTask(false);
+        wateringJobService.checkWateringJob(false);
     }
 
     /**
@@ -30,6 +30,6 @@ public class SchedulerTasks {
     @Scheduled(cron = "${schedule.watering.final.cron}")
     public void runFinalGardenWateringJobTask() {
         log.info("run final GardenWateringTask");
-        wateringJobService.checkWateringTask(true);
+        wateringJobService.checkWateringJob(true);
     }
 }

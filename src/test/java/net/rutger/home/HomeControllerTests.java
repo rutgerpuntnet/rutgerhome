@@ -48,7 +48,7 @@ public class HomeControllerTests {
         WateringJobData wateringJobData = new WateringJobData();
         wateringJobDataRepository.save(wateringJobData);
         System.out.println("SAVE WATERINGDATA");
-        this.mockMvc.perform(get("/test")).andDo(print()).andExpect(status().isOk());
+        this.mockMvc.perform(get("/latest")).andDo(print()).andExpect(status().isOk());
     }
 
 }
