@@ -11,16 +11,16 @@ public class SchedulerTasks {
     private static final Logger log = LoggerFactory.getLogger(SchedulerTasks.class);
 
     @Autowired
-    private WateringService wateringService;
+    private WateringJobService wateringJobService;
 
     /**
      * Run the watering task every 5 minutes between 8 and 9.
      * We expect the result of the KNMI data to be available somewhere during this timewindow.
      */
     @Scheduled(cron = "${schedule.watering.cron}")
-    public void runGardenWateringTask() {
+    public void runGardenWateringJobTask() {
         log.info("run GardenWateringTask");
-        wateringService.checkWateringTask(false);
+        wateringJobService.checkWateringTask(false);
     }
 
     /**
@@ -28,9 +28,8 @@ public class SchedulerTasks {
      * been done once a day
      */
     @Scheduled(cron = "${schedule.watering.final.cron}")
-    public void runFinalGardenWateringTask() {
+    public void runFinalGardenWateringJobTask() {
         log.info("run final GardenWateringTask");
-        wateringService.checkWateringTask(true);
-
+        wateringJobService.checkWateringTask(true);
     }
 }

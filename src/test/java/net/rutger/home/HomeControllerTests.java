@@ -20,6 +20,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import net.rutger.home.domain.WateringJobData;
+import net.rutger.home.repository.WateringJobDataRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +38,16 @@ public class HomeControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private WateringJobDataRepository wateringJobDataRepository;
+
     @Test
     public void noParamGreetingShouldReturnDefaultMessage() throws Exception {
 
+        System.out.println("DATABASE CONTENT: " + wateringJobDataRepository.findAll());
+        WateringJobData wateringJobData = new WateringJobData();
+        wateringJobDataRepository.save(wateringJobData);
+        System.out.println("SAVE WATERINGDATA");
         this.mockMvc.perform(get("/test")).andDo(print()).andExpect(status().isOk());
     }
 
