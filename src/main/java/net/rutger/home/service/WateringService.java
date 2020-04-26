@@ -33,11 +33,7 @@ public class WateringService {
     private WateringJobDataRepository wateringJobDataRepository;
 
     public void executeWateringAction() {
-        // Determine the moment where we should execute again (based on interval and duration. Add 10 seconds of slack
-        final LocalDateTime lastModifiedBefore = LocalDateTime.now().minusMinutes(interval).minusMinutes(maxDuration).plusSeconds(10);
-
-        LOG.trace("Execute watering action. Finding job with lastModifiedBefore: {}", lastModifiedBefore);
-        final WateringJobData wateringJobData = wateringJobDataRepository.findFirstActiveWateringJob(LocalDate.now(),lastModifiedBefore);
+        final WateringJobData wateringJobData = wateringJobDataRepository.findFirstActiveWateringJob(LocalDate.now(),LocalDateTime.now());
 
         if (wateringJobData != null) {
             LOG.debug("Found WateringJob: {}", wateringJobData);
@@ -51,11 +47,12 @@ public class WateringService {
                 minutes = minutesLeft;
                 wateringJobData.setMinutesLeft(0);
             }
-            LOG.debug("Watering job {} for {} minutes. MinutesLeft {}", wateringJobData.getId(), minutes, wateringJobData.getMinutesLeft());
+            LOG.info("Watering job ID {} for {} minutes. MinutesLeft now {}", wateringJobData.getId(), minutes, wateringJobData.getMinutesLeft());
 
             try {
                 final GardenArduino gardenArduinoResult = this.restTemplate.getForObject(arduinoUrl, GardenArduino.class, minutes);
                 LOG.debug("Called gardenArduino. Result: {}", gardenArduinoResult);
+                wateringJobData.setNextRun(LocalDateTime.now().plusMinutes(minutes).plusMinutes(interval).minusSeconds(10));
                 wateringJobDataRepository.save(wateringJobData);
             } catch (Exception e) {
                 LOG.error("Exception while calling Arduino:", e);

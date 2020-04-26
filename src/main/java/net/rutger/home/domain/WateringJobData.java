@@ -43,6 +43,8 @@ public class WateringJobData {
     @Column(length=2)
     private int minutesLeft;
 
+    private LocalDateTime nextRun;
+
     @LastModifiedDate
     private LocalDateTime updatedOn;
 
@@ -57,5 +59,6 @@ public class WateringJobData {
             this.meanTemperature = weatherData.get().get(WeatherDataType.TG);
             this.maxTemperature = weatherData.get().get(WeatherDataType.TX);
         }
+        this.nextRun = LocalDateTime.now();
     }
 }

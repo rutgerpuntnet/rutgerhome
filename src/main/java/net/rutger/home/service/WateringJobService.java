@@ -41,7 +41,7 @@ public class WateringJobService {
         LOG.debug("Check watering job");
         final WateringJobData wateringJobDataToday = wateringJobDataRepository.findFirstByLocalDate(LocalDate.now());
         if (wateringJobDataToday == null) {
-            LOG.debug("Running watering job (no existing found for today");
+            LOG.info("Running watering job (no existing found for today");
             // determine if KNMI data is available
             final Optional<Map<WeatherDataType, Double>> weatherData = knmiService.getDataFromPreviousDay();
             if (weatherData.isPresent() || finalRun) {
@@ -62,7 +62,7 @@ public class WateringJobService {
         final int minutes = determineMinutes(weatherData);
         final WateringJobData wateringJobData = new WateringJobData(weatherData, minutes);
         wateringJobDataRepository.save(wateringJobData);
-        LOG.debug("Saved new WateringJobData: {}", wateringJobData);
+        LOG.info("Saved new WateringJobData: {}", wateringJobData);
         emailService.emailWateringResult(wateringJobData);
     }
 

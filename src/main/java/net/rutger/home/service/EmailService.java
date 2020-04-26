@@ -1,5 +1,6 @@
 package net.rutger.home.service;
 
+import lombok.Setter;
 import net.rutger.home.domain.WateringJobData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 @Service
+@Setter
 public class EmailService {
     private final static Logger LOG = LoggerFactory.getLogger(EmailService.class);
 
@@ -49,16 +51,18 @@ public class EmailService {
             } else {
                 final DecimalFormat df = new DecimalFormat("###.##");
                 message.setText(String.format("De tuinsproeier is zojuist geactiveerd met de volgende gegevens:\n" +
-                                "%d mm initiele wateraanvulling, plus\n" +
-                                "%s mm verdamping, minus\n" +
-                                "%s mm neerslag. Totaal\n" +
-                                "%s mm aanvullen, resulterend in %d minuten sproeien.\n\n",
+                                "%d mm initiele wateraanvulling,\n" +
+                                "plus: %s mm verdamping,\n" +
+                                "minus: %s mm neerslag.\n" +
+                                "Totaal: %s mm aanvullen,\n" +
+                                "resulterend in %s minuten sproeien.\n\n" +
                                 "Hieronder volgt de sproeidata:" +
                                 "\n%s",
                         initialMillimeters,
-                        df.format(wateringJobData.getMakkinkIndex()),
-                        df.format(wateringJobData.getPrecipitation()),
-                        df.format((initialMillimeters + wateringJobData.getMakkinkIndex()) - wateringJobData.getPrecipitation()),
+                        wateringJobData.getMakkinkIndex() == null ? "n/a" : df.format(wateringJobData.getMakkinkIndex()),
+                        wateringJobData.getPrecipitation() == null ? "n/a" : df.format(wateringJobData.getPrecipitation()),
+                        wateringJobData.getPrecipitation() == null || wateringJobData.getMakkinkIndex() == null ?
+                                "n/a" : df.format((initialMillimeters + wateringJobData.getMakkinkIndex()) - wateringJobData.getPrecipitation()),
                         wateringJobData.getNumberOfMinutes(),
                         wateringJobData.toString()));
             }
@@ -66,5 +70,6 @@ public class EmailService {
         emailSender.send(message);
         LOG.debug("Email sent");
     }
+
 
 }

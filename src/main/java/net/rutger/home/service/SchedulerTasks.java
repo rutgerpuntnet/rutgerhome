@@ -30,7 +30,7 @@ public class SchedulerTasks {
      */
     @Scheduled(cron = "${schedule.watering.job.cron}")
     public void runGardenWateringJobTask() {
-        log.info("run GardenWateringJobTask");
+        log.trace("run GardenWateringJobTask");
         wateringJobService.checkWateringJob(false);
     }
 
@@ -40,7 +40,7 @@ public class SchedulerTasks {
      */
     @Scheduled(cron = "${schedule.watering.job.final.cron}")
     public void runFinalGardenWateringJobTask() {
-        log.info("run final GardenWateringJobTask");
+        log.trace("run final GardenWateringJobTask");
         wateringJobService.checkWateringJob(true);
     }
 
@@ -49,7 +49,7 @@ public class SchedulerTasks {
      */
     @Scheduled(cron = "${schedule.watering.cron}")
     public void runGardenWateringTask() {
-        log.info("run GardenWateringTask");
+        log.trace("run GardenWateringTask");
         wateringService.executeWateringAction();
     }
 }
