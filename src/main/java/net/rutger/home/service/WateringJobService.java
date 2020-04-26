@@ -19,38 +19,38 @@ public class WateringJobService {
 
     private final static double MILLIMETER_PER_MINUTE = 0.3;
 
-    private LocalDate latestWatering = LocalDate.MIN;
-
     @Value("${watering.minutes.default}")
     private int defaultWateringMinutes;
 
     @Value("${watering.initial.mm}")
     private int initialMillimeters;
 
-    @Value("${watering.minutes.maximum}")
-    private int maxWateringMinutes;
+    @Value("${watering.daily.limit.minutes}")
+    private int dailyLimitMinutes;
 
     @Autowired
     private KnmiService knmiService;
 
     @Autowired
+    private EmailService emailService;
+
+    @Autowired
     private WateringJobDataRepository wateringJobDataRepository;
 
     public void checkWateringJob(final boolean finalRun) {
-        LOG.debug("Executing watering job");
-        final LocalDate now = LocalDate.now();
-        if (latestWatering.isBefore(now)) {
-            LOG.debug("Running watering job");
+        LOG.debug("Check watering job");
+        final WateringJobData wateringJobDataToday = wateringJobDataRepository.findFirstByLocalDate(LocalDate.now());
+        if (wateringJobDataToday == null) {
+            LOG.debug("Running watering job (no existing found for today");
             // determine if KNMI data is available
             final Optional<Map<WeatherDataType, Double>> weatherData = knmiService.getDataFromPreviousDay();
             if (weatherData.isPresent() || finalRun) {
                 createAndStoreWateringJobData(weatherData);
-                latestWatering = now;
             } else {
                 LOG.debug("No data retrieved for this intermediate run, skipping task this time.");
             }
         } else {
-            LOG.debug("Watering job already executed today");
+            LOG.debug("Found existing job in database (will not execute): {}", wateringJobDataToday);
         }
     }
 
@@ -61,8 +61,9 @@ public class WateringJobService {
     private void createAndStoreWateringJobData(final Optional<Map<WeatherDataType, Double>> weatherData) {
         final int minutes = determineMinutes(weatherData);
         final WateringJobData wateringJobData = new WateringJobData(weatherData, minutes);
-        wateringJobData.setMinutesLeft(minutes);
         wateringJobDataRepository.save(wateringJobData);
+        LOG.debug("Saved new WateringJobData: {}", wateringJobData);
+        emailService.emailWateringResult(wateringJobData);
     }
 
     private int determineMinutes(final Optional<Map<WeatherDataType, Double>> incomingWeatherData) {
@@ -78,10 +79,10 @@ public class WateringJobService {
                 result = 0;
             }
         }
-        return result > maxWateringMinutes ? maxWateringMinutes : result;
+        return result > dailyLimitMinutes ? dailyLimitMinutes : result;
     }
 
     public WateringJobData getLatestWateringJobData(){
-        return null; // TODO wateringJobDataRepository.findOne();
+        return wateringJobDataRepository.findFirstByOrderByUpdatedOnDesc();
     }
 }

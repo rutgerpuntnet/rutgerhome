@@ -3,6 +3,9 @@ package net.rutger.home.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,23 +16,40 @@ public class SchedulerTasks {
     @Autowired
     private WateringJobService wateringJobService;
 
+    @Autowired
+    private WateringService wateringService;
+
+    @EventListener
+    public void onStartup(ApplicationReadyEvent event) {
+        log.info("Application started. Scheduler set.");
+    }
+
     /**
-     * Run the watering task every 5 minutes between 8 and 9.
+     * Run the wateringjob task every 5 minutes between 8 and 9.
      * We expect the result of the KNMI data to be available somewhere during this timewindow.
      */
-    @Scheduled(cron = "${schedule.watering.cron}")
+    @Scheduled(cron = "${schedule.watering.job.cron}")
     public void runGardenWateringJobTask() {
-        log.info("run GardenWateringTask");
+        log.info("run GardenWateringJobTask");
         wateringJobService.checkWateringJob(false);
     }
 
     /**
-     * Run the watering task for the last time today (this run should take care that the execution has always
+     * Run the wateringjob task for the last time today (this run should take care that the execution has always
      * been done once a day
      */
-    @Scheduled(cron = "${schedule.watering.final.cron}")
+    @Scheduled(cron = "${schedule.watering.job.final.cron}")
     public void runFinalGardenWateringJobTask() {
-        log.info("run final GardenWateringTask");
+        log.info("run final GardenWateringJobTask");
         wateringJobService.checkWateringJob(true);
+    }
+
+    /**
+     * Run the actual watering task that acts upon the results of the wateringJob
+     */
+    @Scheduled(cron = "${schedule.watering.cron}")
+    public void runGardenWateringTask() {
+        log.info("run GardenWateringTask");
+        wateringService.executeWateringAction();
     }
 }

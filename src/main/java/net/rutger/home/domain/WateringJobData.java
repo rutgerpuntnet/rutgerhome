@@ -3,12 +3,11 @@ package net.rutger.home.domain;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -22,25 +21,34 @@ import java.util.Optional;
 @Data
 @NoArgsConstructor
 @ToString
+@EntityListeners(AuditingEntityListener.class)
 public class WateringJobData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private LocalDate localDate;
+    @Column(precision=3, scale=1)
     private Double makkinkIndex;
+    @Column(precision=4, scale=1)
     private Double precipitation;
+    @Column(precision=4, scale=1)
     private Double precipitationDuration;
+    @Column(precision=3, scale=1)
     private Double meanTemperature;
+    @Column(precision=3, scale=1)
     private Double maxTemperature;
+    @Column(length=2)
     private int numberOfMinutes;
-    private Integer minutesLeft;
+    @Column(length=2)
+    private int minutesLeft;
 
     @LastModifiedDate
     private LocalDateTime updatedOn;
 
     public WateringJobData(final Optional<Map<WeatherDataType, Double>> weatherData, final int numberOfMinutes) {
         this.numberOfMinutes = numberOfMinutes;
+        this.minutesLeft = numberOfMinutes;
         this.localDate = LocalDate.now();
         if (weatherData.isPresent()) {
             this.makkinkIndex = weatherData.get().get(WeatherDataType.EV24);

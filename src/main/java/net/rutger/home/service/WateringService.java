@@ -7,14 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class WateringService {
@@ -23,69 +20,48 @@ public class WateringService {
     @Value("${garden.arduino.url}")
     private String arduinoUrl;
 
-    @Value("${watering.initial.mm}")
-    private int initialMillimeters;
+    @Value("${watering.interval.minutes}")
+    private int interval;
 
-    @Value("${email.sender}")
-    private String emailSenderAddress;
-
-    @Value("#{'${email.recipients}'.split(',')}")
-    private List<String> emailRecipients;
+    @Value("${watering.max.duration.minutes}")
+    private int maxDuration;
 
     @Autowired
     private RestTemplate restTemplate;
 
     @Autowired
-    private JavaMailSender emailSender;
-
-    @Autowired
     private WateringJobDataRepository wateringJobDataRepository;
 
-    public void executeWateringJob() {
-        // TODO make properties
-        long interval=5;
-        long maxDuration=2;
+    public void executeWateringAction() {
+        // Determine the moment where we should execute again (based on interval and duration. Add 10 seconds of slack
+        final LocalDateTime lastModifiedBefore = LocalDateTime.now().minusMinutes(interval).minusMinutes(maxDuration).plusSeconds(10);
 
-        final LocalDateTime lastModifiedBefore = LocalDateTime.now().minusMinutes(interval).minusMinutes(maxDuration);
-
-        final WateringJobData wateringJobData = wateringJobDataRepository.findActiveWateringJob(LocalDate.now(),lastModifiedBefore);
+        LOG.trace("Execute watering action. Finding job with lastModifiedBefore: {}", lastModifiedBefore);
+        final WateringJobData wateringJobData = wateringJobDataRepository.findFirstActiveWateringJob(LocalDate.now(),lastModifiedBefore);
 
         if (wateringJobData != null) {
-            final int minutes = wateringJobData.getMinutesLeft();
+            LOG.debug("Found WateringJob: {}", wateringJobData);
 
-            final GardenArduino gardenArduinoResult = this.restTemplate.getForObject(arduinoUrl, GardenArduino.class, minutes);
-            LOG.debug("Called gardenArduino. Result: {}", gardenArduinoResult);
-
-            //TODO update minutes left and save wateringJobDataRepository.save(wateringJobData);
-            emailWateringResult(wateringJobData, gardenArduinoResult);
-        }
-    }
-
-    private void emailWateringResult(final WateringJobData wateringJobData, final GardenArduino gardenArduino) {
-        LOG.debug("Sending email with watering results.");
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(emailSenderAddress);
-        message.setTo(emailRecipients.toArray(new String[emailRecipients.size()]));
-        message.setSubject("Tuinsproeisysteem dagrapport");
-        if (gardenArduino == null) {
-            message.setText(String.format("Er wordt vandaag NIET gesproeid.\n" +
-                    "De hoeveelheid neerslag was groter of gelijk aan de verdamping van het water vermeerderd met %d mm,", initialMillimeters));
-        } else {
-            if(wateringJobData.getMakkinkIndex() == null) {
-                message.setText(String.format("De tuinsproeier zal vandaag voor %d minuten sproeien.\n" +
-                        "De KNMI data is helaas niet succesvol ontvangen waardoor is gekozen voor de standaardduur." +
-                        "Hieronder volgt het antwoord van de arduino:\n%s", wateringJobData.getNumberOfMinutes(), gardenArduino.toString()));
+            final int minutesLeft = wateringJobData.getMinutesLeft();
+            int minutes;
+            if (minutesLeft > maxDuration) {
+                minutes = maxDuration;
+                wateringJobData.setMinutesLeft(minutesLeft - maxDuration);
             } else {
-                message.setText(String.format("De tuinsproeier zal vandaag voor %d minuten sproeien.\n" +
-                                "Dit is gebaseerd op de volgende gegevens van de afgelopen dag:\n" +
-                                "%d mm initiele wateraanvulling, %f mm verdamping en %f mm neerslag.\n" +
-                                "Dit geeft een totale aanvulling van %f mm water, tegen een factor van %f mm sproeien per minuut" +
-                                "Hieronder volgt het antwoord van de arduino:\n%s", wateringJobData.getNumberOfMinutes(), initialMillimeters,
-                        wateringJobData.getMakkinkIndex(), wateringJobData.getPrecipitation(),
-                        gardenArduino.toString()));
+                minutes = minutesLeft;
+                wateringJobData.setMinutesLeft(0);
             }
+            LOG.debug("Watering job {} for {} minutes. MinutesLeft {}", wateringJobData.getId(), minutes, wateringJobData.getMinutesLeft());
+
+            try {
+                final GardenArduino gardenArduinoResult = this.restTemplate.getForObject(arduinoUrl, GardenArduino.class, minutes);
+                LOG.debug("Called gardenArduino. Result: {}", gardenArduinoResult);
+                wateringJobDataRepository.save(wateringJobData);
+            } catch (Exception e) {
+                LOG.error("Exception while calling Arduino:", e);
+            }
+        } else {
+            LOG.trace("No WateringJob found for now.");
         }
-        emailSender.send(message);
-        LOG.debug("Email sent");
     }
 }

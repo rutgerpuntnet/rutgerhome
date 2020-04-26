@@ -88,7 +88,7 @@ public class KnmiService {
         // The last line (so also last inserted line at position 0 in the List), should contain the actual data
         if (resultList.size() < 3 || resultList.get(0).startsWith("#") || !resultList.get(0).contains("240")) {
             LOG.debug("No valid weatherdata found:\n--{}", resultList.get(0));
-            throw new RuntimeException("No valid weatherdata found"); // todo create specific exception
+            throw new RuntimeException("No valid weatherdata found");
         } else {
             return resultList.subList(0, 3);
         }
