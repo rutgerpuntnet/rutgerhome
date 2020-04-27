@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -29,6 +30,8 @@ public class EmailService {
 
     @Autowired
     private JavaMailSender emailSender;
+
+    private LocalDate lastErrorMail = LocalDate.now().minusDays(1);
 
     public void emailWateringResult(final WateringJobData wateringJobData) {
         LOG.debug("Sending email with watering results.");
@@ -72,4 +75,18 @@ public class EmailService {
     }
 
 
+    public void emailArduinoException(final RuntimeException e) {
+        // Don't send the arduino error mail more then once a day.
+        if(LocalDate.now().isAfter(lastErrorMail)) {
+            LOG.debug("Sending email with arduino exception.");
+            final SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("Tuinsproeier <"+emailSenderAddress+">");
+            message.setTo(emailRecipients.toArray(new String[emailRecipients.size()]));
+            message.setSubject("Tuinsproeier exception occurred!");
+            message.setText("Er is een exceptie opgetreden tijdens het aanroepen van de tuin-arduino.\n" +
+                    "Het sproeien is niet gelukt!\n\nFoutmelding:" + e.getMessage());
+            emailSender.send(message);
+            lastErrorMail = LocalDate.now();
+        }
+    }
 }

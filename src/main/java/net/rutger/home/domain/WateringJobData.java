@@ -1,5 +1,6 @@
 package net.rutger.home.domain;
 
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -19,7 +20,7 @@ import java.util.Optional;
  */
 @Entity
 @Data
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 @EntityListeners(AuditingEntityListener.class)
 public class WateringJobData {
@@ -43,10 +44,10 @@ public class WateringJobData {
     @Column(length=2)
     private int minutesLeft;
 
-    private LocalDateTime nextRun;
+    @Enumerated(EnumType.STRING)
+    private WateringJobType type;
 
-    @LastModifiedDate
-    private LocalDateTime updatedOn;
+    private LocalDateTime nextRun;
 
     public WateringJobData(final Optional<Map<WeatherDataType, Double>> weatherData, final int numberOfMinutes) {
         this.numberOfMinutes = numberOfMinutes;
@@ -60,5 +61,6 @@ public class WateringJobData {
             this.maxTemperature = weatherData.get().get(WeatherDataType.TX);
         }
         this.nextRun = LocalDateTime.now();
+        this.type = WateringJobType.AUTO;
     }
 }
