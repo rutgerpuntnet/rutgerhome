@@ -33,7 +33,7 @@ public class EmailServiceTest {
         wateringJobData.setMakkinkIndex(1.2);
         wateringJobData.setMinutesLeft(4);
         wateringJobData.setNumberOfMinutes(6);
-        wateringJobData.setUpdatedOn(LocalDateTime.now());
+        wateringJobData.setNextRun(LocalDateTime.now());
         emailService.emailWateringResult(wateringJobData);
     }
 }

@@ -1,5 +1,6 @@
 package net.rutger.home.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -7,8 +8,10 @@ import java.util.stream.Collectors;
 import net.rutger.home.domain.GardenArduino;
 import net.rutger.home.domain.WateringAction;
 import net.rutger.home.domain.WateringJobData;
+import net.rutger.home.domain.WateringJobEnforceData;
 import net.rutger.home.repository.WateringActionRepository;
 import net.rutger.home.repository.WateringJobDataRepository;
+import net.rutger.home.repository.WateringJobEnforceDataRepository;
 import net.rutger.home.service.GardenArduinoService;
 import net.rutger.home.service.WateringJobService;
 import org.slf4j.Logger;
@@ -19,9 +22,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("watering")
+@RestController
+@RequestMapping("watering")
 public class HomeController {
     private final static Logger LOG = LoggerFactory.getLogger(HomeController.class);
 
@@ -37,12 +42,15 @@ public class HomeController {
     @Autowired
     private GardenArduinoService gardenArduinoService;
 
+    @Autowired
+    private WateringJobEnforceDataRepository wateringJobEnforceDataRepository;
+
     private static final String template = "Hello, %s!";
     private final AtomicLong counter = new AtomicLong();
 
     @RequestMapping("/job/latest")
     public WateringJobData latestJob() {
-        final WateringJobData result = wateringJobDataRepository.findFirstByOrderByUpdatedOnDesc();
+        final WateringJobData result = wateringJobDataRepository.findFirstByOrderByNextRunDesc();
         LOG.debug("latest job data: {} ", result);
         return result;
     }
@@ -67,6 +75,14 @@ public class HomeController {
         final GardenArduino result = gardenArduinoService.call(count);
         wateringActionRepository.save(new WateringAction(count, true));
         return result;
+    }
+
+    @PostMapping("/enforceminutes")
+    public ResponseEntity enforceWateringJobTomorrowMinutes(@RequestParam final Integer minutes) {
+        LOG.debug("Set enforce watering data for tomorrow");
+        final WateringJobEnforceData enforceData = new WateringJobEnforceData(LocalDate.now().plusDays(1),minutes);
+        wateringJobEnforceDataRepository.save(enforceData);
+        return ResponseEntity.ok().build();
     }
 
     @RequestMapping(value = "/waterforminutes")

@@ -1,17 +1,13 @@
 package net.rutger.home.domain;
 
-import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
@@ -20,7 +16,7 @@ import java.util.Optional;
  */
 @Entity
 @Data
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @ToString
 @EntityListeners(AuditingEntityListener.class)
 public class WateringJobData {
@@ -50,6 +46,11 @@ public class WateringJobData {
     private LocalDateTime nextRun;
 
     public WateringJobData(final Optional<Map<WeatherDataType, Double>> weatherData, final int numberOfMinutes) {
+        this(weatherData, numberOfMinutes, WateringJobType.AUTO);
+    }
+
+    public WateringJobData(final Optional<Map<WeatherDataType, Double>> weatherData, final int numberOfMinutes,
+                           final WateringJobType type) {
         this.numberOfMinutes = numberOfMinutes;
         this.minutesLeft = numberOfMinutes;
         this.localDate = LocalDate.now();
@@ -61,6 +62,6 @@ public class WateringJobData {
             this.maxTemperature = weatherData.get().get(WeatherDataType.TX);
         }
         this.nextRun = LocalDateTime.now();
-        this.type = WateringJobType.AUTO;
+        this.type = type;
     }
 }
