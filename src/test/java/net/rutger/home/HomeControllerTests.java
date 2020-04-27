@@ -15,11 +15,8 @@
  */
 package net.rutger.home;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import net.rutger.home.domain.WateringJobData;
+import net.rutger.home.repository.WateringJobDataRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +24,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -36,10 +37,17 @@ public class HomeControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private WateringJobDataRepository wateringJobDataRepository;
+
     @Test
     public void noParamGreetingShouldReturnDefaultMessage() throws Exception {
 
-        this.mockMvc.perform(get("/test")).andDo(print()).andExpect(status().isOk());
+        System.out.println("DATABASE CONTENT: " + wateringJobDataRepository.findAll());
+        WateringJobData wateringJobData = new WateringJobData();
+        wateringJobDataRepository.save(wateringJobData);
+        System.out.println("SAVE WATERINGDATA");
+        this.mockMvc.perform(get("/watering/job/latest")).andDo(print()).andExpect(status().isOk());
     }
 
 }

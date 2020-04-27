@@ -12,11 +12,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class KnmiService {
@@ -88,7 +84,7 @@ public class KnmiService {
         // The last line (so also last inserted line at position 0 in the List), should contain the actual data
         if (resultList.size() < 3 || resultList.get(0).startsWith("#") || !resultList.get(0).contains("240")) {
             LOG.debug("No valid weatherdata found:\n--{}", resultList.get(0));
-            throw new RuntimeException("No valid weatherdata found"); // todo create specific exception
+            throw new RuntimeException("No valid weatherdata found");
         } else {
             return resultList.subList(0, 3);
         }
