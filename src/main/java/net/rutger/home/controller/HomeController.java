@@ -1,10 +1,5 @@
 package net.rutger.home.controller;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
-
 import net.rutger.home.domain.GardenArduino;
 import net.rutger.home.domain.WateringAction;
 import net.rutger.home.domain.WateringJobData;
@@ -24,6 +19,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("watering")

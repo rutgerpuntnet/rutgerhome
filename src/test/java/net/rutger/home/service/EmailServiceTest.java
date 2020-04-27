@@ -4,7 +4,6 @@ import net.rutger.home.domain.WateringJobData;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import java.time.LocalDateTime;
