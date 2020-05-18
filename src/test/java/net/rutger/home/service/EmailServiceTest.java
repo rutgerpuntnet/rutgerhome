@@ -29,9 +29,7 @@ public class EmailServiceTest {
     public void testEmail() {
         WateringJobData wateringJobData = new WateringJobData();
         wateringJobData.setMinutesLeft(10);
-        wateringJobData.setMakkinkIndex(1.2);
         wateringJobData.setMinutesLeft(4);
-        wateringJobData.setNumberOfMinutes(6);
         wateringJobData.setNextRun(LocalDateTime.now());
         emailService.emailWateringResult(wateringJobData);
     }

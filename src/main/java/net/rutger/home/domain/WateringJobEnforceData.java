@@ -1,6 +1,5 @@
 package net.rutger.home.domain;
 
-import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -22,7 +21,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Data
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @ToString
 @EntityListeners(AuditingEntityListener.class)
 public class WateringJobEnforceData {
@@ -40,15 +39,5 @@ public class WateringJobEnforceData {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-    public WateringJobEnforceData(final LocalDate localDate, final double multiplyFactor) {
-        this.localDate = localDate;
-        this.multiplyFactor = multiplyFactor;
-        this.numberOfMinutes = null;
-    }
 
-    public WateringJobEnforceData(final LocalDate localDate, final int numberOfMinutes) {
-        this.localDate = localDate;
-        this.multiplyFactor = null;
-        this.numberOfMinutes = numberOfMinutes;
-    }
 }

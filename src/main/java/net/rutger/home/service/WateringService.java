@@ -44,6 +44,7 @@ public class WateringService {
             if (minutesLeft > maxDuration) {
                 minutes = maxDuration;
                 wateringJobData.setMinutesLeft(minutesLeft - maxDuration);
+                wateringJobData.setNextRun(LocalDateTime.now().plusMinutes(minutes).plusMinutes(interval).minusSeconds(10));
             } else {
                 minutes = minutesLeft;
                 wateringJobData.setMinutesLeft(0);
@@ -52,7 +53,6 @@ public class WateringService {
             final GardenArduino gardenArduinoResult = gardenArduinoService.call(minutes);
             wateringActionRepository.save(new WateringAction(minutes));
             LOG.debug("Called gardenArduino. Result: {}", gardenArduinoResult);
-            wateringJobData.setNextRun(LocalDateTime.now().plusMinutes(minutes).plusMinutes(interval).minusSeconds(10));
             wateringJobDataRepository.save(wateringJobData);
         } else {
             LOG.trace("No WateringJob found for now.");

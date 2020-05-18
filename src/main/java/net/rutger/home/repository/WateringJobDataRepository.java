@@ -16,6 +16,6 @@ public interface WateringJobDataRepository extends JpaRepository<WateringJobData
 
     WateringJobData findFirstByOrderByNextRunDesc();
 
-    WateringJobData findFirstByLocalDate(final LocalDate localDate);
+    WateringJobData findFirstByLocalDateOrderByNextRunDesc(final LocalDate localDate);
 
 }

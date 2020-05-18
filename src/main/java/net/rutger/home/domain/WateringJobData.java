@@ -3,11 +3,13 @@ package net.rutger.home.domain;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -15,11 +17,13 @@ import java.util.Optional;
  * Data file containing information about a (daily) watering job
  */
 @Entity
-@Data
 @NoArgsConstructor
 @ToString
-@EntityListeners(AuditingEntityListener.class)
+@Data
 public class WateringJobData {
+    private static final Locale DUTCH_LOCALE = new Locale("nl", "NL");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###.##");
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -45,12 +49,11 @@ public class WateringJobData {
 
     private LocalDateTime nextRun;
 
-    public WateringJobData(final Optional<Map<WeatherDataType, Double>> weatherData, final int numberOfMinutes) {
-        this(weatherData, numberOfMinutes, WateringJobType.AUTO);
-    }
+    @ManyToOne
+    private StaticWateringData staticWateringData;
 
     public WateringJobData(final Optional<Map<WeatherDataType, Double>> weatherData, final int numberOfMinutes,
-                           final WateringJobType type) {
+                           final WateringJobType type, final StaticWateringData staticWateringData) {
         this.numberOfMinutes = numberOfMinutes;
         this.minutesLeft = numberOfMinutes;
         this.localDate = LocalDate.now();
@@ -63,5 +66,37 @@ public class WateringJobData {
         }
         this.nextRun = LocalDateTime.now();
         this.type = type;
+        this.staticWateringData = staticWateringData;
     }
+
+    public String getDay() {
+        if(localDate.isEqual(LocalDate.now())) {
+            return "Vandaag";
+        } else if (localDate.isEqual(LocalDate.now().minusDays(1))) {
+            return "Gisteren";
+        } else {
+            return localDate.format(DateTimeFormatter.ofPattern("EEEE, dd MM YYYY", DUTCH_LOCALE));
+        }
+    }
+
+    public String getMakkinkIndexString() {
+        return DECIMAL_FORMAT.format(makkinkIndex);
+    }
+
+    public String getPrecipitationString() {
+        return DECIMAL_FORMAT.format(precipitation);
+    }
+
+    public String getPrecipitationDurationString() {
+        return DECIMAL_FORMAT.format(precipitationDuration);
+    }
+
+    public String getMeanTemperatureString() {
+        return DECIMAL_FORMAT.format(meanTemperature);
+    }
+
+    public String getMaxTemperatureString() {
+        return DECIMAL_FORMAT.format(maxTemperature);
+    }
+
 }

@@ -51,7 +51,14 @@ public class KnmiService {
                 final String value = columnValues[i];
                 try {
                     final WeatherDataType type = WeatherDataType.valueOf(column);
-                    result.put(type, type.getFactor() * Integer.valueOf(value));
+                    Integer intValue = Integer.valueOf(value);
+                    if ((WeatherDataType.RH.equals(type) || WeatherDataType.SQ.equals(type))
+                        && intValue < 0) {
+                        // For RH and SQ they value is -1 of they measured 0.5, in that case we'll force it to 0
+                        intValue = 0;
+                    }
+
+                    result.put(type, type.getFactor() * intValue);
                 } catch (IllegalArgumentException e) {
                     LOG.debug("Skipping unknown weather data type {}", column);
                 }
