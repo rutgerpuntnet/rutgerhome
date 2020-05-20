@@ -1,9 +1,10 @@
 package net.rutger.home.controller;
 
-import lombok.Data;
 import net.rutger.home.controller.model.EnforceData;
+import net.rutger.home.controller.model.HistoryGraphData;
 import net.rutger.home.controller.model.WateringStatus;
 import net.rutger.home.domain.*;
+import net.rutger.home.repository.StaticWateringDataRepository;
 import net.rutger.home.repository.WateringActionRepository;
 import net.rutger.home.repository.WateringJobDataRepository;
 import net.rutger.home.repository.WateringJobEnforceDataRepository;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,9 @@ public class WateringController {
 
     @Autowired
     private WateringJobEnforceDataRepository wateringJobEnforceDataRepository;
+
+    @Autowired
+    private StaticWateringDataRepository staticWateringDataRepository;
 
     @RequestMapping("/status")
     public WateringStatus getStatus() {
@@ -73,22 +77,27 @@ public class WateringController {
         return result;
     }
 
-    @RequestMapping("/job/latest/{count}")
-    public List<WateringJobData> latestJobs(@PathVariable final Integer count) {
-        final Pageable pageable = PageRequest.of(0, count, Sort.by(Sort.Direction.DESC, "localDate"));
-        final Page<WateringJobData> result = wateringJobDataRepository.findAll(pageable);
-        return result.get().collect(Collectors.toList());
+    @RequestMapping("/staticdata")
+    public StaticWateringData getStaticWateringData() {
+        return staticWateringDataRepository.findFirstByOrderByIdDesc();
     }
 
-    @RequestMapping("/job/latest/test")
-    public TestData test() {
-        return new TestData();
-    }
+    @RequestMapping("/history/{days}")
+    public HistoryGraphData getHistoryGraphData(@PathVariable final Integer days) {
+        final Pageable pageable = PageRequest.of(0, days, Sort.by(Sort.Direction.DESC, "localDate"));
+        final Page<WateringJobData> pageResult = wateringJobDataRepository.findAll(pageable);
+        List<WateringJobData> wateringJobData = pageResult.get().collect(Collectors.toList());
 
-    @Data
-    public class TestData {
-        List<Integer> intValues = Arrays.asList(new Integer[]{4,2,6});
-        List<String> StringValues = Arrays.asList(new String[]{"one","two"});
+        final HistoryGraphData historyGraphData = new HistoryGraphData();
+        for (WateringJobData jobData : wateringJobData) {
+            final String label = jobData.getLocalDate().format(DateTimeFormatter.ofPattern("EEEE dd-MM", WateringJobData.DUTCH_LOCALE));
+
+            historyGraphData.getLabels().add(0, label);
+            historyGraphData.getDuration().add(0, jobData.getNumberOfMinutes());
+            historyGraphData.getMakkink().add(0, jobData.getMakkinkIndex());
+            historyGraphData.getPrecipitation().add(0, jobData.getPrecipitation());
+        }
+        return historyGraphData;
     }
 
     @RequestMapping("/action/latest/{count}")

@@ -21,8 +21,8 @@ import java.util.Optional;
 @ToString
 @Data
 public class WateringJobData {
-    private static final Locale DUTCH_LOCALE = new Locale("nl", "NL");
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###.##");
+    public static final Locale DUTCH_LOCALE = new Locale("nl", "NL");
+    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###.##");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
