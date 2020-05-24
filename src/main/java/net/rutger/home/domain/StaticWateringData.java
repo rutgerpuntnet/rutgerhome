@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Data
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class StaticWateringData {
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###.##");
+    private static final DateTimeFormatter LAST_MODIFIED_FORMATTER = DateTimeFormatter.ofPattern("dd MMMM YYYY", WateringJobData.DUTCH_LOCALE);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,8 +36,22 @@ public class StaticWateringData {
     @LastModifiedDate
     private LocalDateTime lastModified;
 
+    public StaticWateringData(final StaticWateringData origin, Double factor, Integer minutesPerMm,
+                              final Integer defaultMinutes, final Integer dailyLimitMinutes, final Integer maxDurationMinutes,
+                              final Integer initialMm, final Integer intervalMinutes) {
+        this.factor = factor == null ? origin.getFactor() : factor;
+        this.minutesPerMm = minutesPerMm == null ? origin.getMinutesPerMm() : minutesPerMm;
+        this.defaultMinutes = defaultMinutes == null ? origin.getDefaultMinutes() : defaultMinutes;
+        this.dailyLimitMinutes = dailyLimitMinutes == null ? origin.getDailyLimitMinutes() : dailyLimitMinutes;
+        this.maxDurationMinutes = maxDurationMinutes == null ? origin.getMaxDurationMinutes() : maxDurationMinutes;
+        this.initialMm = initialMm == null ? origin.getInitialMm() : initialMm;
+        this.intervalMinutes = intervalMinutes == null ? origin.getIntervalMinutes() : intervalMinutes;
+    }
     public String getFactorString() {
         return DECIMAL_FORMAT.format(factor);
     }
 
+    public String getModifiedSince(){
+        return LAST_MODIFIED_FORMATTER.format(lastModified);
+    }
 }

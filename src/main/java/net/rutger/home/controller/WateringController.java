@@ -2,6 +2,7 @@ package net.rutger.home.controller;
 
 import net.rutger.home.controller.model.EnforceData;
 import net.rutger.home.controller.model.HistoryGraphData;
+import net.rutger.home.controller.model.StaticData;
 import net.rutger.home.controller.model.WateringStatus;
 import net.rutger.home.domain.*;
 import net.rutger.home.repository.StaticWateringDataRepository;
@@ -50,7 +51,7 @@ public class WateringController {
     @Autowired
     private StaticWateringDataRepository staticWateringDataRepository;
 
-    @RequestMapping("/status")
+    @GetMapping("/status")
     public WateringStatus getStatus() {
         final WateringStatus result = new WateringStatus();
         final WateringJobData jobData = wateringJobDataRepository.findFirstByOrderByNextRunDesc();
@@ -70,19 +71,32 @@ public class WateringController {
         return result;
     }
 
-    @RequestMapping("/job/latest")
+    @GetMapping("/job/latest")
     public WateringJobData latestJob() {
         final WateringJobData result = wateringJobDataRepository.findFirstByOrderByNextRunDesc();
         LOG.debug("latest job data: {} ", result);
         return result;
     }
 
-    @RequestMapping("/staticdata")
+    @GetMapping("/staticdata")
     public StaticWateringData getStaticWateringData() {
         return staticWateringDataRepository.findFirstByOrderByIdDesc();
     }
 
-    @RequestMapping("/history/{days}")
+    @PostMapping("/staticdata")
+    public ResponseEntity postStaticWateringData(@RequestBody final StaticData body) {
+        LOG.debug("postStaticWateringData {}", body );
+
+        final StaticWateringData current = staticWateringDataRepository.findFirstByOrderByIdDesc();
+        StaticWateringData newData = new StaticWateringData(current, body.getFactor(), body.getMinutesPerMm(),
+                body.getDefaultMinutes(), body.getDailyLimitMinutes(), body.getMaxDurationMinutes(), body.getInitialMm(),
+                body.getIntervalMinutes());
+        newData = staticWateringDataRepository.save(newData);
+        LOG.debug("Stored new static data with ID {}", newData.getId() );
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/history/{days}")
     public HistoryGraphData getHistoryGraphData(@PathVariable final Integer days) {
         final Pageable pageable = PageRequest.of(0, days, Sort.by(Sort.Direction.DESC, "localDate"));
         final Page<WateringJobData> pageResult = wateringJobDataRepository.findAll(pageable);
@@ -100,7 +114,7 @@ public class WateringController {
         return historyGraphData;
     }
 
-    @RequestMapping("/action/latest/{count}")
+    @GetMapping("/action/latest/{count}")
     public List<WateringAction> latestActions(@PathVariable final Integer count) {
         final Pageable pageable = PageRequest.of(0, count, Sort.by(Sort.Direction.DESC, "createdDateTime"));
         final Page<WateringAction> result = wateringActionRepository.findAll(pageable);

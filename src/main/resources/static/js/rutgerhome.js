@@ -1,8 +1,10 @@
 $( document ).ready(function() {
     console.log( "Document ready!" );
     loadLatestData();
+    loadStaticData();
 
-    setSliderListener();
+    setNewNextFactorSliderListener();
+    setStaticFactorSliderListener();
 });
 
 function loadLatestData() {
@@ -33,6 +35,9 @@ function loadLatestData() {
             }
             $('#nextJob').text(response.nextRunDay);
             if(response.nextEnforceFactor !== null) {
+                $('#newNextFactor').val(response.nextEnforceFactor);
+                $('#newNextFactorValueSpan').html(response.nextEnforceFactor);
+
                 $('#nextFactor').text(response.nextEnforceFactor);
                 $('#nextFactorAvailable').show();
             }
@@ -41,16 +46,16 @@ function loadLatestData() {
     });
 }
 
-function setSliderListener() {
-    console.log("Set slider listener");
-    const $valueSpan = $('.valueSpan2');
-    const $value = $('#customRange11');
+function setNewNextFactorSliderListener() {
+    console.log("Set newNextFactorValueSpan slider listener");
+
+    const $valueSpan = $('#newNextFactorValueSpan');
+    const $value = $('#newNextFactor');
     $valueSpan.html($value.val());
     $value.on('input change', () => {
         $valueSpan.html($value.val());
     });
 }
-
 
 // Post enforce factor
 $(function () {
@@ -58,15 +63,14 @@ $(function () {
         console.log("sendRange click")
 
         var data = {}  // object to hold the user input data
-        data["factor"] = $('#customRange11').val()
-        data["days"] = $('#factorDays').val()
+        data["factor"] = $('#newNextFactor').val()
+        data["days"] = 1; // TODO implement $('#factorDays').val()
 
         console.log("Data",data)
         $.ajax({
             url: "/watering/enforceFactor",
             contentType: "application/json",
             data: JSON.stringify(data),
-          //  dataType: "json",
             type: 'POST',
             success: function (response) {
                 console.log("Done enforce", response);
@@ -77,7 +81,7 @@ $(function () {
 });
 
 
-// Post enforce factor
+// kill switch
 $(function () {
     $('#stopCurrentJob').click(function () {
         console.log("stopCurrentJob click")
@@ -92,4 +96,72 @@ $(function () {
         });
     });
 });
+
+
+function setStaticFactorSliderListener() {
+    console.log("Set staticFactor slider listener");
+
+    const $valueSpan = $('#staticFactorValueSpan');
+    const $value = $('#staticFactor');
+    $valueSpan.html($value.val());
+    $value.on('input change', () => {
+        $valueSpan.html($value.val());
+    });
+}
+
+
+function loadStaticData() {
+    console.log("Get static data");
+
+    $.ajax({
+        url: "/watering/staticdata",
+        contentType: "application/json",
+        dataType: "json",
+        type: 'GET',
+        success: function (response) {
+            console.log("Got response from backend (static data):", response);
+
+            $('#staticDataModifiedSince').text(response.modifiedSince);
+            $('#staticFactor').val(response.factor);
+            $('#staticFactorValueSpan').html(response.factor);
+            $('#minutesPerMm').val(response.minutesPerMm);
+            $('#defaultMinutes').val(response.defaultMinutes);
+            $('#dailyLimitMinutes').val(response.dailyLimitMinutes);
+            $('#maxDurationMinutes').val(response.maxDurationMinutes);
+            $('#initialMm').val(response.initialMm);
+            $('#intervalMinutes').val(response.intervalMinutes);
+
+        }
+    });
+}
+
+
+// send static data factor
+$(function () {
+    $('#sendStaticData').click(function () {
+        console.log("send static data click")
+
+        var data = {}  // object to hold the user input data
+        data["factor"] = $('#staticFactor').val()
+        data["minutesPerMm"] = $('#minutesPerMm').val()
+        data["defaultMinutes"] = $('#defaultMinutes').val()
+        data["dailyLimitMinutes"] = $('#dailyLimitMinutes').val()
+        data["maxDurationMinutes"] = $('#maxDurationMinutes').val()
+        data["initialMm"] = $('#initialMm').val()
+        data["intervalMinutes"] = 1; $('#intervalMinutes').val()
+
+        console.log("Data",data)
+        $.ajax({
+            url: "/watering/staticdata",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            type: 'POST',
+            success: function (response) {
+                console.log("Done set static data", response);
+                loadStaticData();
+            }
+        });
+    });
+});
+
 

@@ -48,38 +48,44 @@
       <div class="tab-content w-75" id="myTabContent">
 
         <div class="tab-pane fade show active" id="status" role="tabpanel" aria-labelledby="status-tab">
-          <h3 style="margin-bottom: 3px;margin-top: 2px;">Laatste job</h3>
-          <dl class="row">
-            <dt class="col-sm-6">Wanneer</dt>
-              <dd class="col-sm-6"><span id="latestDay"></span></dd>
 
-            <dt class="col-sm-6">Verdamping (Makkink)</dt>
-              <dd class="col-sm-6"><span id="latestMakkink"></span> <span>&nbsp;mm</span></dd>
+            <div class="card" style="margin-top: 15px;">
 
-            <dt class="col-sm-6">Neerslag hoeveelheid</dt>
-              <dd class="col-sm-6"><span id="latestPrecip"></span> <span>&nbsp;mm</span></dd>
+                <!-- Card content -->
+                <div class="card-body" >
+                    <h4 class="card-title text-primary"><a>Laatste run</a></h4>
+                    <dl class="row">
+                        <dt class="col-sm-6">Wanneer</dt>
+                        <dd class="col-sm-6"><span id="latestDay"></span></dd>
 
-              <dt class="col-sm-6">Neerslag duur</dt>
-              <dd class="col-sm-6"><span id="latestPrecipDuration"></span><span>&nbsp;min.</span></dd>
+                        <dt class="col-sm-6">Verdamping (Makkink)</dt>
+                        <dd class="col-sm-6"><span id="latestMakkink"></span> <span>&nbsp;mm</span></dd>
 
-            <dt class="col-sm-6">Maximum temperatuur</dt>
-              <dd class="col-sm-6"><span id="latestMaxTemp"></span><span>&nbsp;&#8451;</span></dd>
+                        <dt class="col-sm-6">Neerslag hoeveelheid</dt>
+                        <dd class="col-sm-6"><span id="latestPrecip"></span> <span>&nbsp;mm</span></dd>
 
-            <dt class="col-sm-6">Gemiddelde temperatuur</dt>
-              <dd class="col-sm-6"><span id="latestMeanTemp"></span><span>&nbsp;&#8451;</span></dd>
+                        <dt class="col-sm-6">Neerslag duur</dt>
+                        <dd class="col-sm-6"><span id="latestPrecipDuration"></span><span>&nbsp;min.</span></dd>
 
-            <dt class="col-sm-6">Sproeitijd</dt>
-              <dd class="col-sm-6"><span id="latestNumberOfMinutes"></span> <span>&nbsp;min.</span></dd>
+                        <dt class="col-sm-6">Maximum temperatuur</dt>
+                        <dd class="col-sm-6"><span id="latestMaxTemp"></span><span>&nbsp;&#8451;</span></dd>
 
-            <dt class="col-sm-6">Tijd resterend</dt>
-              <dd class="col-sm-6"><span id="latestMinutesLeft"></span> <span>&nbsp;min.</span></dd>
+                        <dt class="col-sm-6">Gemiddelde temperatuur</dt>
+                        <dd class="col-sm-6"><span id="latestMeanTemp"></span><span>&nbsp;&#8451;</span></dd>
 
-              <dt class="col-sm-6">Gebruikte factor</dt>
-              <dd class="col-sm-6"><span id="latestFactor"></span></dd>
+                        <dt class="col-sm-6">Sproeitijd</dt>
+                        <dd class="col-sm-6"><span id="latestNumberOfMinutes"></span> <span>&nbsp;min.</span></dd>
 
-          </dl>
-          <button type="button" id="stopCurrentJob" class="btn btn-primary" style="display: none;">Stop huidige job</button>
+                        <dt class="col-sm-6">Tijd resterend</dt>
+                        <dd class="col-sm-6"><span id="latestMinutesLeft"></span> <span>&nbsp;min.</span></dd>
 
+                        <dt class="col-sm-6">Gebruikte factor</dt>
+                        <dd class="col-sm-6"><span id="latestFactor"></span></dd>
+
+                    </dl>
+                    <button type="button" id="stopCurrentJob" class="btn btn-primary" style="display: none;">Stop huidige job</button>
+                </div>
+            </div>
         </div>
 
 
@@ -97,7 +103,7 @@
                 <div class="card-body" >
 
                     <!-- Title -->
-                    <h4 class="card-title"><a>Factor aanpassen</a></h4>
+                    <h4 class="card-title text-primary"><a>Factor aanpassen</a></h4>
                     <!-- Text -->
                     <p class="card-text">Eerstvolgende job: <span id="nextJob">vandaag</span></p>
                     <p id="nextFactorAvailable" style="display: none">Voor deze job is reeds een factor van <span id="nextFactor"></span> vastgelegd</p>
@@ -105,13 +111,13 @@
                     <div class="container">
                         <div class="row">
                             <div class="row w-100">
-                                <input type="range" class="custom-range col" id="customRange11" min="0" max="2" step="0.2" style="margin-left: 15px;">
-                                <span class="font-weight-bold text-primary ml-2 valueSpan2" style=""></span>
+                                <input type="range" class="custom-range col" id="newNextFactor" min="0" max="2" step="0.1" style="margin-left: 15px;">
+                                <span id="newNextFactorValueSpan" class="font-weight-bold text-primary ml-2 valueSpan2"></span>
                             </div>
                         </div>
 
                         <div class="row">
-                            <button id="sendRange" type="button" class="btn btn-primary">Verstuur</button>
+                            <button id="sendRange" type="button" class="btn btn-primary">Opslaan</button>
                         </div>
                     </div>
 
@@ -126,12 +132,16 @@
                 <!-- Card content -->
                 <div class="card-body" >
 
-                    <h4 class="card-title"><a>Instellingen aanpassen (DUMMY DATA)</a></h4>
+                    <h4 class="card-title text-primary"><a>Instellingen (sinds <span id="staticDataModifiedSince"></span>)</a></h4>
+                    <dl class="row w-100">
+                        <input type="range" class="custom-range col" id="staticFactor" min="0" max="2" step="0.1" style="margin-left: 15px;">
+                        <span id="staticFactorValueSpan" class="font-weight-bold text-primary ml-2 valueSpan2" style=""></span>
+                    </dl>
                     <dl class="row">
                         <dt class="col-sm-6">Minuten sproeien per mm aanvulling</dt>
                         <dd class="col-sm-6">
                             <select id="minutesPerMm" class="browser-default custom-select w-auto">
-                                <option selected>1</option>
+                                <option>1</option>
                                 <option>2</option>
                                 <option>3</option>
                                 <option>4</option>
@@ -149,7 +159,7 @@
                         <dt class="col-sm-6">Standaard minuten (bij gebrek KNMI gegevens)</dt>
                         <dd class="col-sm-6">
                             <select id="defaultMinutes" class="browser-default custom-select w-auto">
-                                <option selected>1</option>
+                                <option>1</option>
                                 <option>2</option>
                                 <option>3</option>
                                 <option>4</option>
@@ -173,6 +183,100 @@
                         </dd>
                     </dl>
 
+                    <dl class="row">
+                        <dt class="col-sm-6">Dagelijkse limiet per run</dt>
+                        <dd class="col-sm-6">
+                            <select id="dailyLimitMinutes" class="browser-default custom-select w-auto">
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                                <option>6</option>
+                                <option>7</option>
+                                <option>8</option>
+                                <option>9</option>
+                                <option>10</option>
+                                <option>11</option>
+                                <option>12</option>
+                                <option>13</option>
+                                <option>14</option>
+                                <option>15</option>
+                                <option>16</option>
+                                <option>17</option>
+                                <option>18</option>
+                                <option>19</option>
+                                <option>20</option>
+                                <option>21</option>
+                                <option>22</option>
+                                <option>23</option>
+                                <option>24</option>
+                                <option>25</option>
+                                <option>26</option>
+                                <option>27</option>
+                                <option>28</option>
+                                <option>29</option>
+                                <option>30</option>
+                                <option>99</option>
+                            </select>
+                        </dd>
+                    </dl>
+
+                    <dl class="row">
+                        <dt class="col-sm-6">Maximum aantal minuten achter elkaar</dt>
+                        <dd class="col-sm-6">
+                            <select id="maxDurationMinutes" class="browser-default custom-select w-auto">
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                                <option>6</option>
+                            </select>
+                        </dd>
+                    </dl>
+
+                    <dl class="row">
+                        <dt class="col-sm-6">Initiele aanvulling in millimeters</dt>
+                        <dd class="col-sm-6">
+                            <select id="initialMm" class="browser-default custom-select w-auto">
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                                <option>6</option>
+                            </select>
+                        </dd>
+                    </dl>
+
+                    <dl class="row">
+                        <dt class="col-sm-6">Interval in minuten</dt>
+                        <dd class="col-sm-6">
+                            <select id="intervalMinutes" class="browser-default custom-select w-auto">
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                                <option>6</option>
+                                <option>7</option>
+                                <option>8</option>
+                                <option>9</option>
+                                <option>10</option>
+                                <option>11</option>
+                                <option>12</option>
+                                <option>13</option>
+                                <option>14</option>
+                                <option>15</option>
+                            </select>
+                        </dd>
+                    </dl>
+
+                    <div class="row">
+                        <button id="sendStaticData" type="button" class="btn btn-primary">Opslaan</button>
+                    </div>
+
 
                 </div>
 
@@ -185,7 +289,7 @@
 
           <!-- History tab -->
         <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
-            <h3 style="margin-bottom: 3px;margin-top: 20px;"><span id="historyChartDays">X</span> dagen geschiedenis</h3>
+            <h4 class="title text-primary"><a><span id="historyChartDays">X</span> dagen geschiedenis</a></h4>
             <canvas id="wateringHistoryChart"></canvas>
         </div>
       </div>
