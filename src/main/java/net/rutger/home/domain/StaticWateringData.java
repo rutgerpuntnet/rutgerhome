@@ -48,10 +48,10 @@ public class StaticWateringData {
         this.intervalMinutes = intervalMinutes == null ? origin.getIntervalMinutes() : intervalMinutes;
     }
     public String getFactorString() {
-        return DECIMAL_FORMAT.format(factor);
+        return factor == null ? "" : DECIMAL_FORMAT.format(factor);
     }
 
     public String getModifiedSince(){
-        return LAST_MODIFIED_FORMATTER.format(lastModified);
+        return lastModified == null ? "" : LAST_MODIFIED_FORMATTER.format(lastModified);
     }
 }

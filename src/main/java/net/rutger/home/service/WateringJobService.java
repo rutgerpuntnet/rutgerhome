@@ -33,7 +33,7 @@ public class WateringJobService {
 
     public void checkWateringJob(final boolean finalRun) {
         LOG.debug("Check watering job");
-        final WateringJobData wateringJobDataToday = wateringJobDataRepository.findFirstByLocalDateOrderByNextRunDesc(LocalDate.now());
+        final WateringJobData wateringJobDataToday = wateringJobDataRepository.findLatestTodaysNonManualJob(LocalDate.now());
         if (wateringJobDataToday == null) {
             LOG.info("Running watering job (no existing found for today");
             // determine if KNMI data is available
@@ -44,7 +44,7 @@ public class WateringJobService {
                 LOG.debug("No data retrieved for this intermediate run, skipping task this time.");
             }
         } else {
-            LOG.debug("Found existing job in database (will not execute): {}", wateringJobDataToday);
+            LOG.trace("Found existing job in database (will not execute): {}", wateringJobDataToday);
         }
     }
 
@@ -58,7 +58,7 @@ public class WateringJobService {
         final int minutes = determineMinutes(weatherData, enforceData, staticData);
 
         final WateringJobData wateringJobData = new WateringJobData(weatherData, minutes,
-                enforceData == null ? WateringJobType.AUTO : WateringJobType.ENFORCED, staticData);
+                enforceData == null ? WateringJobType.AUTO : WateringJobType.ENFORCED, staticData, enforceData);
 
         wateringJobDataRepository.save(wateringJobData);
         LOG.info("Saved new WateringJobData: {}", wateringJobData);
@@ -67,6 +67,7 @@ public class WateringJobService {
 
     private int determineMinutes(final Optional<Map<WeatherDataType, Double>> incomingWeatherData,
                                  final WateringJobEnforceData enforceData, final StaticWateringData staticData) {
+        LOG.debug("Determin minutes using staticData: {} ", staticData.toString());
         int result = staticData.getDefaultMinutes();
         if (enforceData != null && enforceData.getNumberOfMinutes() != null) {
             LOG.info("We have enforcement number of minutes for this day. Being: {} minutes", enforceData.getNumberOfMinutes());

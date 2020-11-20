@@ -1,6 +1,8 @@
 package net.rutger.home.service;
 
 import net.rutger.home.domain.GardenArduino;
+import net.rutger.home.domain.WateringAction;
+import net.rutger.home.repository.WateringActionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +23,15 @@ public class GardenArduinoService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private WateringActionRepository wateringActionRepository;
+
     public GardenArduino call(final Integer minutes) {
         GardenArduino result = null;
         try {
+            LOG.debug("Calling Arduino to set timer for {} minutes.", minutes);
             result = this.restTemplate.getForObject(arduinoUrl, GardenArduino.class, minutes);
+            wateringActionRepository.save(new WateringAction(minutes));
         } catch (RuntimeException e) {
             LOG.error("Exception while calling garden arduino on URL " + arduinoUrl, e);
             emailService.emailArduinoException(e);

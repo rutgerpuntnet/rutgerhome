@@ -1,14 +1,19 @@
+var historyTable = undefined;
+
 $(document).ready(function() {
     $("#history-tab").click(function() {
-        loadHistoryChartData();
+        loadChartData();
+        if (historyTable === undefined) {
+            loadTableData();
+        }
     });
 });
 
-function loadHistoryChartData() {
+function loadChartData() {
     console.log("Get chart data");
 
     $.ajax({
-        url: "/watering/history/7",
+        url: "/watering/graph/7",
         contentType: "application/json",
         dataType: "json",
         type: 'GET',
@@ -65,10 +70,52 @@ function loadHistoryChartData() {
                     responsive: true
                 }
             });
-
-
         }
     });
 }
 
-//line
+
+function loadTableData() {
+    console.log("Get table data");
+
+    $.ajax({
+        url: "/watering/table/365",
+        contentType: "application/json",
+        dataType: "json",
+        type: 'GET',
+        success: function (response) {
+            console.log("Got table response from backend (latest 365)");
+            historyTable = $('#historyTable').DataTable({
+                data: response.rows,
+                columns: response.columns,
+                fixedHeader: {
+                    header: true,
+                    footer: true
+                }
+            });
+            $("#historyTable_wrapper").css("width","100%");
+
+            response.columns.forEach(function(item, index) {
+                $('#historyTableToggle').append('&nbsp;-&nbsp;<a class=\"toggle-vis\" style=\"color: black;\" data-column=\"'+index+'\">'+item.title+'</a>');
+            });
+
+
+            $('a.toggle-vis').on( 'click', function (e) {
+                e.preventDefault();
+
+                // Get the column API object
+                var column = historyTable.column( $(this).attr('data-column') );
+
+                // Toggle the visibility
+                if (column.visible()) {
+                    column.visible(false);
+                    $(this).css('color', 'silver');
+                } else {
+                    column.visible(true);
+                    $(this).css('color', 'black');
+                }
+            } );
+
+        }
+    });
+}

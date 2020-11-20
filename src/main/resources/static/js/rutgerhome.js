@@ -26,13 +26,26 @@ function loadLatestData() {
             $('#latestMeanTemp').text(response.latestJob.meanTemperatureString);
             $('#latestNumberOfMinutes').text(response.latestJob.numberOfMinutes);
             $('#latestMinutesLeft').text(response.latestJob.minutesLeft);
-            $('#latestFactor').text(response.latestJob.staticWateringData.factorString);
+            $('#latestFactor').text(response.latestJob.usedFactorString);
 
             if(response.latestJob.minutesLeft > 0) {
                 $('#stopCurrentJob').show();
+                $('#manualJobAlertActive').show();
+                $('#sendManual').prop("disabled", true);
+                $('#minutesManual').prop("disabled", true);
             } else {
                 $('#stopCurrentJob').hide();
+                $('#manualJobAlertActive').hide();
+                $('#sendManual').prop("disabled", false);
+                $('#minutesManual').prop("disabled", false);
             }
+
+            if (response.automaticJobUpcoming) {
+                $('#manualJobAlertSoon').show();
+            } else {
+                $('#manualJobAlertSoon').hide();
+            }
+
             $('#nextJob').text(response.nextRunDay);
             if(response.nextEnforceFactor !== null) {
                 $('#newNextFactor').val(response.nextEnforceFactor);
@@ -74,6 +87,22 @@ $(function () {
             type: 'POST',
             success: function (response) {
                 console.log("Done enforce", response);
+                loadLatestData();
+            }
+        });
+    });
+});
+
+// Post enforce factor
+$(function () {
+    $('#sendManual').click(function () {
+        console.log("sendManual click")
+
+        $.ajax({
+            url: "/watering/manualAction/" + $('#minutesManual').val(),
+            type: 'POST',
+            success: function (response) {
+                console.log("Done send manual job", response);
                 loadLatestData();
             }
         });
@@ -148,7 +177,7 @@ $(function () {
         data["dailyLimitMinutes"] = $('#dailyLimitMinutes').val()
         data["maxDurationMinutes"] = $('#maxDurationMinutes').val()
         data["initialMm"] = $('#initialMm').val()
-        data["intervalMinutes"] = 1; $('#intervalMinutes').val()
+        data["intervalMinutes"] = $('#intervalMinutes').val()
 
         console.log("Data",data)
         $.ajax({

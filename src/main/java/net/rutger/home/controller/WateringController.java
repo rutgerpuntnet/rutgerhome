@@ -1,9 +1,6 @@
 package net.rutger.home.controller;
 
-import net.rutger.home.controller.model.EnforceData;
-import net.rutger.home.controller.model.HistoryGraphData;
-import net.rutger.home.controller.model.StaticData;
-import net.rutger.home.controller.model.WateringStatus;
+import net.rutger.home.controller.model.*;
 import net.rutger.home.domain.*;
 import net.rutger.home.repository.StaticWateringDataRepository;
 import net.rutger.home.repository.WateringActionRepository;
@@ -96,11 +93,9 @@ public class WateringController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/history/{days}")
-    public HistoryGraphData getHistoryGraphData(@PathVariable final Integer days) {
-        final Pageable pageable = PageRequest.of(0, days, Sort.by(Sort.Direction.DESC, "localDate"));
-        final Page<WateringJobData> pageResult = wateringJobDataRepository.findAll(pageable);
-        List<WateringJobData> wateringJobData = pageResult.get().collect(Collectors.toList());
+    @GetMapping("/graph/{count}")
+    public HistoryGraphData getHistoryGraphData(@PathVariable final Integer count) {
+        final List<WateringJobData> wateringJobData = getNumberOfWateringJobData(count);
 
         final HistoryGraphData historyGraphData = new HistoryGraphData();
         for (WateringJobData jobData : wateringJobData) {
@@ -114,6 +109,18 @@ public class WateringController {
         return historyGraphData;
     }
 
+    @GetMapping("/table/{count}")
+    public HistoryTableData getHistoryTableData(@PathVariable final Integer count) {
+        final List<WateringJobData> wateringJobData = getNumberOfWateringJobData(count);
+        return new HistoryTableData(wateringJobData);
+    }
+
+    private List<WateringJobData> getNumberOfWateringJobData(final int numberOfResults) {
+        final Pageable pageable = PageRequest.of(0, numberOfResults, Sort.by(Sort.Direction.DESC, "localDate"));
+        final Page<WateringJobData> pageResult = wateringJobDataRepository.findAll(pageable);
+        return pageResult.get().collect(Collectors.toList());
+    }
+
     @GetMapping("/action/latest/{count}")
     public List<WateringAction> latestActions(@PathVariable final Integer count) {
         final Pageable pageable = PageRequest.of(0, count, Sort.by(Sort.Direction.DESC, "createdDateTime"));
@@ -121,14 +128,16 @@ public class WateringController {
         return result.get().collect(Collectors.toList());
     }
 
-    @PostMapping("/manualAction")
-    public GardenArduino waterAction(@RequestParam final Integer count) {
-        LOG.debug("Manual action to water for {} minutes", count);
-        WateringJobData data = new WateringJobData();
-
-        final GardenArduino result = gardenArduinoService.call(count);
-        wateringActionRepository.save(new WateringAction(count, true));
-        return result;
+    @PostMapping("/manualAction/{numberOfMinutes}")
+    public ResponseEntity waterAction(@PathVariable final Integer numberOfMinutes) {
+        LOG.debug("Manual action to water for {} minutes", numberOfMinutes);
+        final WateringJobData current = wateringJobDataRepository.findFirstByOrderByNextRunDesc();
+        if (current != null && current.getMinutesLeft() > 0) {
+            throw new IllegalStateException("There is already an active wateringJob at the moment");
+        }
+        final WateringJobData data = new WateringJobData(numberOfMinutes);
+        wateringJobDataRepository.save(data);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/enforceMinutes")
@@ -144,7 +153,7 @@ public class WateringController {
     private ResponseEntity enforce(final EnforceData body) {
         LOG.debug("Set enforce watering data. Body: {}", body);
         LocalDate localDate = LocalDate.now();
-        final WateringJobData wateringJobData = wateringJobDataRepository.findFirstByLocalDateOrderByNextRunDesc(localDate);
+        final WateringJobData wateringJobData = wateringJobDataRepository.findLatestTodaysNonManualJob(localDate);
 
         if (wateringJobData != null) { // there is already a job for today, enforcement is for next job (tomorrow)
             LOG.debug("enforce for tomorrow");
@@ -181,9 +190,9 @@ public class WateringController {
     public void killCurrentJob() {
         LOG.info("killCurrentJob");
         gardenArduinoService.call(0);
-        final WateringJobData data = wateringJobDataRepository.findFirstByLocalDateOrderByNextRunDesc(LocalDate.now());
+        final WateringJobData data = wateringJobDataRepository.findFirstByOrderByNextRunDesc();
         data.setMinutesLeft(0);
-        data.setType(WateringJobType.MANUAL);
+        data.setType(WateringJobType.ENFORCED);
         wateringJobDataRepository.save(data);
     }
 }

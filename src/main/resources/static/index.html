@@ -1,13 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>Material Design for Bootstrap</title>
-  <!-- MDB icon -->
-  <link rel="icon" href="img/favicon.ico" type="image/x-icon">
-  <!-- Font Awesome -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Terras sproeibeheer - Rutger.net</title>
+    <!-- icon -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/icon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="img/icon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="img/icon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="img/icon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="img/icon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="img/icon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="img/icon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="img/icon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/icon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="img/icon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/icon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="img/icon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/icon/favicon-16x16.png">
+    <link rel="manifest" href="img/icon/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="img/icon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <!-- Font Awesome -->
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css">
   <!-- Google Fonts Roboto -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
@@ -15,7 +31,11 @@
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <!-- Material Design Bootstrap -->
   <link rel="stylesheet" href="css/mdb.min.css">
-  <!-- Your custom styles (optional) -->
+
+    <!-- datatables -->
+    <link href="css/addons/datatables.min.css" rel="stylesheet">
+
+    <!-- Your custom styles (optional) -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -24,7 +44,7 @@
   <div style="">
 
     <div class="flex-center flex-column vw-100">
-      <h1 class="animated fadeIn mb-4" >Tuinsproeibeheer</h1>
+      <h1 class="animated fadeIn mb-4" >Terras sproeibeheer</h1>
 
         <!-- Start tabs -->
       <ul class="nav nav-tabs vw-100" id="myTab" role="tablist">
@@ -45,9 +65,9 @@
 
 
 
-      <div class="tab-content w-75" id="myTabContent">
+      <div class="tab-content w-100" id="myTabContent">
 
-        <div class="tab-pane fade show active" id="status" role="tabpanel" aria-labelledby="status-tab">
+        <div class="tab-pane fade show active mx-auto w-75" id="status" role="tabpanel" aria-labelledby="status-tab">
 
             <div class="card" style="margin-top: 15px;">
 
@@ -65,7 +85,7 @@
                         <dd class="col-sm-6"><span id="latestPrecip"></span> <span>&nbsp;mm</span></dd>
 
                         <dt class="col-sm-6">Neerslag duur</dt>
-                        <dd class="col-sm-6"><span id="latestPrecipDuration"></span><span>&nbsp;min.</span></dd>
+                        <dd class="col-sm-6"><span id="latestPrecipDuration"></span><span>&nbsp;hr.</span></dd>
 
                         <dt class="col-sm-6">Maximum temperatuur</dt>
                         <dd class="col-sm-6"><span id="latestMaxTemp"></span><span>&nbsp;&#8451;</span></dd>
@@ -91,7 +111,7 @@
 
 
 
-        <div class="tab-pane fade" id="actions" role="tabpanel" aria-labelledby="actions-tab">
+        <div class="tab-pane fade mx-auto w-75"" id="actions" role="tabpanel" aria-labelledby="actions-tab">
 
             <!-- factor Card -->
             <div class="card" style="margin-top: 15px;">
@@ -125,6 +145,63 @@
 
             </div>
             <!-- End Card -->
+
+          <!-- manual job Card -->
+          <div class="card" style="margin-top: 15px;">
+
+              <!-- Card image -->
+              <!--                <img class="card-img-top" src="https://mdbootstrap.com/img/Photos/Others/images/43.jpg" alt="Card image cap">-->
+
+              <!-- Card content -->
+              <div class="card-body" >
+
+                  <!-- Title -->
+                  <h4 class="card-title text-primary"><a>Losse sproeibeurt</a></h4>
+                  <!-- Text -->
+                  <p class="card-text" id="manualJobIntro">Voer een losse sproeibeurt uit die direct begint.</p>
+                  <p id="manualJobAlertSoon" style="display: none; color: red;">Let op! Tussen 8 en 9 uur zal al een geautomatiseerde sproeibeurt starten!</p>
+                  <p id="manualJobAlertActive" style="display: none; color: red;">Let op! Er is momenteel al een sproeibeurt actief. Deze actie is nu niet mogelijk!</p>
+
+                  <dl class="row" style="margin-top: 15px;">
+                      <dt class="col-sm-6">Aantal minuten</dt>
+                      <dd class="col-sm-6">
+                          <select id="minutesManual" class="browser-default custom-select w-auto">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option selected>5</option>
+                              <option>6</option>
+                              <option>7</option>
+                              <option>8</option>
+                              <option>9</option>
+                              <option>10</option>
+                              <option>11</option>
+                              <option>12</option>
+                              <option>13</option>
+                              <option>14</option>
+                              <option>15</option>
+                              <option>16</option>
+                              <option>17</option>
+                              <option>18</option>
+                              <option>19</option>
+                              <option>20</option>
+                          </select>
+                      </dd>
+                  </dl>
+
+                  <div class="container">
+                      <div class="row">
+                          <button id="sendManual" type="button" class="btn btn-primary">Start</button>
+                      </div>
+                  </div>
+
+              </div>
+
+          </div>
+          <!-- End Manual Card -->
+
+
 
             <!-- Static data Card -->
             <div class="card" style="margin-top: 15px;">
@@ -272,25 +349,45 @@
                             </select>
                         </dd>
                     </dl>
-
-                    <div class="row">
-                        <button id="sendStaticData" type="button" class="btn btn-primary">Opslaan</button>
+                    <div class="container">
+                        <div class="row">
+                            <button id="sendStaticData" type="button" class="btn btn-primary">Opslaan</button>
+                        </div>
                     </div>
-
 
                 </div>
 
             </div>
             <!-- End Card -->
 
-        </div>
+
+
+      </div>
 
 
 
           <!-- History tab -->
         <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
-            <h4 class="title text-primary"><a><span id="historyChartDays">X</span> dagen geschiedenis</a></h4>
-            <canvas id="wateringHistoryChart"></canvas>
+
+            <div class="card" style="margin: 15px;">
+                <div class="card-body" >
+                    <h4 class="card-title text-primary"><a><span id="historyChartDays">X</span> dagen geschiedenis</a></h4>
+                    <canvas id="wateringHistoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card" style="margin: 15px;">
+                <div class="card-body w-100" >
+                    <div id="historyTableToggle" class="row w-100">
+                        <span>Toggle kolom:</span>&nbsp;
+                    </div>
+                    <div class="row w-100">
+                        <table id="historyTable" class="table table-striped table-bordered w-100" cellspacing="0" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         </div>
       </div>
     </div>
@@ -307,6 +404,8 @@
   <script type="text/javascript" src="js/bootstrap.min.js"></script>
   <!-- MDB core JavaScript -->
   <script type="text/javascript" src="js/mdb.min.js"></script>
+
+  <script type="text/javascript" src="js/addons/datatables.min.js"></script>
 
   <script type="text/javascript" src="js/rutgerhome.js"></script>
 

@@ -22,7 +22,6 @@ public class EmailServiceTest {
         emailService.setEmailSender(javaMailSender);
         emailService.setEmailRecipients(Arrays.asList(new String[]{"email@test.test"}));
         emailService.setEmailSenderAddress("Sender@sender.sender");
-        emailService.setInitialMillimeters(3);
     }
 
     @Test
