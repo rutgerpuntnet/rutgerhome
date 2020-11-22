@@ -1,8 +1,8 @@
 package net.rutger.home.service;
 
 import net.rutger.home.domain.WateringJobData;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.mail.javamail.JavaMailSender;
 
@@ -17,7 +17,7 @@ public class EmailServiceTest {
     @Mock
     JavaMailSender javaMailSender = mock(JavaMailSender.class);
 
-    @Before
+    @BeforeEach
     public void init() {
         emailService.setEmailSender(javaMailSender);
         emailService.setEmailRecipients(Arrays.asList(new String[]{"email@test.test"}));

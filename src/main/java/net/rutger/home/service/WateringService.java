@@ -1,6 +1,5 @@
 package net.rutger.home.service;
 
-import net.rutger.home.domain.GardenArduino;
 import net.rutger.home.domain.StaticWateringData;
 import net.rutger.home.domain.WateringJobData;
 import net.rutger.home.repository.WateringJobDataRepository;
@@ -24,7 +23,7 @@ public class WateringService {
     private int maxDuration;
 
     @Autowired
-    private GardenArduinoService gardenArduinoService;
+    private WaterValveService waterValveService;
 
     @Autowired
     private WateringJobDataRepository wateringJobDataRepository;
@@ -54,8 +53,9 @@ public class WateringService {
                 wateringJobData.setMinutesLeft(0);
             }
             LOG.info("Watering job ID {} for {} minutes. MinutesLeft now {}", wateringJobData.getId(), minutes, wateringJobData.getMinutesLeft());
-            final GardenArduino gardenArduinoResult = gardenArduinoService.call(minutes);
-            LOG.debug("Called gardenArduino. Result: {}", gardenArduinoResult);
+            waterValveService.openUpperValve(minutes*60);
+            //TODO implement split configuration for upper and lower valve, for now we just copy
+            waterValveService.openLowerValve(minutes*60);
             wateringJobDataRepository.save(wateringJobData);
         } else {
             LOG.trace("No WateringJob found for now.");

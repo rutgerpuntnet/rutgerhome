@@ -6,7 +6,7 @@ import net.rutger.home.repository.StaticWateringDataRepository;
 import net.rutger.home.repository.WateringActionRepository;
 import net.rutger.home.repository.WateringJobDataRepository;
 import net.rutger.home.repository.WateringJobEnforceDataRepository;
-import net.rutger.home.service.GardenArduinoService;
+import net.rutger.home.service.WaterValveService;
 import net.rutger.home.service.WateringJobService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ public class WateringController {
     private WateringActionRepository wateringActionRepository;
 
     @Autowired
-    private GardenArduinoService gardenArduinoService;
+    private WaterValveService waterValveService;
 
     @Autowired
     private WateringJobEnforceDataRepository wateringJobEnforceDataRepository;
@@ -189,7 +189,8 @@ public class WateringController {
     @ResponseStatus(value = HttpStatus.OK)
     public void killCurrentJob() {
         LOG.info("killCurrentJob");
-        gardenArduinoService.call(0);
+        waterValveService.openLowerValve(0);
+        waterValveService.openUpperValve(0);
         final WateringJobData data = wateringJobDataRepository.findFirstByOrderByNextRunDesc();
         data.setMinutesLeft(0);
         data.setType(WateringJobType.ENFORCED);
