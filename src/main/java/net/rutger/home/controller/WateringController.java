@@ -1,13 +1,22 @@
 package net.rutger.home.controller;
 
-import net.rutger.home.controller.model.*;
-import net.rutger.home.domain.*;
+import net.rutger.home.controller.model.EnforceData;
+import net.rutger.home.controller.model.HistoryGraphData;
+import net.rutger.home.controller.model.HistoryTableData;
+import net.rutger.home.controller.model.StaticData;
+import net.rutger.home.controller.model.WateringStatus;
+import net.rutger.home.domain.StaticWateringData;
+import net.rutger.home.domain.ValveType;
+import net.rutger.home.domain.WateringAction;
+import net.rutger.home.domain.WateringJobData;
+import net.rutger.home.domain.WateringJobEnforceData;
+import net.rutger.home.domain.WateringJobType;
 import net.rutger.home.repository.StaticWateringDataRepository;
 import net.rutger.home.repository.WateringActionRepository;
 import net.rutger.home.repository.WateringJobDataRepository;
 import net.rutger.home.repository.WateringJobEnforceDataRepository;
+import net.rutger.home.service.DailyWateringJobService;
 import net.rutger.home.service.WaterValveService;
-import net.rutger.home.service.WateringJobService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +26,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,7 +46,7 @@ public class WateringController {
     private final static Logger LOG = LoggerFactory.getLogger(WateringController.class);
 
     @Autowired
-    private WateringJobService wateringJobService;
+    private DailyWateringJobService dailyWateringJobService;
 
     @Autowired
     private WateringJobDataRepository wateringJobDataRepository;
@@ -53,7 +68,8 @@ public class WateringController {
         final WateringStatus result = new WateringStatus();
         final WateringJobData jobData = wateringJobDataRepository.findFirstByOrderByNextRunDesc();
         result.setLatestJob(jobData);
-        result.setActive(jobData != null && jobData.getNextRun().isAfter(LocalDateTime.now()) && jobData.getMinutesLeft() > 0);
+        result.setActive(jobData != null && jobData.getNextRun().isAfter(LocalDateTime.now())
+                && (jobData.getMinutesLeftUpper() > 0 || jobData.getMinutesLeftLower() > 0));
         result.setNextRunDay(jobData != null && LocalDate.now().equals(jobData.getLocalDate()) ? "Morgen" : "Vandaag");
         if (jobData != null && LocalDate.now().equals(jobData.getLocalDate())) {
             result.setNextRunDay("Morgen");
@@ -75,19 +91,20 @@ public class WateringController {
         return result;
     }
 
-    @GetMapping("/staticdata")
-    public StaticWateringData getStaticWateringData() {
-        return staticWateringDataRepository.findFirstByOrderByIdDesc();
+    @GetMapping("/staticdata/{type}")
+    public StaticWateringData getStaticWateringData(@PathVariable final ValveType type) {
+        return staticWateringDataRepository.findFirstByValveTypeOrderByIdDesc(type);
     }
 
-    @PostMapping("/staticdata")
-    public ResponseEntity postStaticWateringData(@RequestBody final StaticData body) {
-        LOG.debug("postStaticWateringData {}", body );
+    @PostMapping("/staticdata/{type}")
+    public ResponseEntity postStaticWateringData(@PathVariable final ValveType type,
+                                                 @RequestBody final StaticData body) {
+        LOG.debug("postStaticWateringData for type {} :\n {}", type, body );
 
-        final StaticWateringData current = staticWateringDataRepository.findFirstByOrderByIdDesc();
-        StaticWateringData newData = new StaticWateringData(current, body.getFactor(), body.getMinutesPerMm(),
-                body.getDefaultMinutes(), body.getDailyLimitMinutes(), body.getMaxDurationMinutes(), body.getInitialMm(),
-                body.getIntervalMinutes());
+        final StaticWateringData current = staticWateringDataRepository.findFirstByValveTypeOrderByIdDesc(type);
+        StaticWateringData newData = new StaticWateringData(type, current, body.getFactor(),
+                body.getMinutesPerMm(), body.getDefaultMinutes(), body.getDailyLimitMinutes(),
+                body.getMaxDurationMinutes(), body.getInitialMm(), body.getIntervalMinutes());
         newData = staticWateringDataRepository.save(newData);
         LOG.debug("Stored new static data with ID {}", newData.getId() );
         return ResponseEntity.ok().build();
@@ -102,7 +119,8 @@ public class WateringController {
             final String label = jobData.getLocalDate().format(DateTimeFormatter.ofPattern("EEEE dd-MM", WateringJobData.DUTCH_LOCALE));
 
             historyGraphData.getLabels().add(0, label);
-            historyGraphData.getDuration().add(0, jobData.getNumberOfMinutes());
+            historyGraphData.getDurationUpper().add(0, jobData.getNumberOfMinutesUpper());
+            historyGraphData.getDurationLower().add(0, jobData.getNumberOfMinutesLower());
             historyGraphData.getMakkink().add(0, jobData.getMakkinkIndex());
             historyGraphData.getPrecipitation().add(0, jobData.getPrecipitation());
         }
@@ -128,14 +146,17 @@ public class WateringController {
         return result.get().collect(Collectors.toList());
     }
 
-    @PostMapping("/manualAction/{numberOfMinutes}")
-    public ResponseEntity waterAction(@PathVariable final Integer numberOfMinutes) {
-        LOG.debug("Manual action to water for {} minutes", numberOfMinutes);
+    @PostMapping("/manualAction/{numberOfMinutesUpper}/{numberOfMinutesLower}")
+    public ResponseEntity waterAction(@PathVariable final Integer numberOfMinutesUpper,
+                                      @PathVariable final Integer numberOfMinutesLower) {
+        LOG.debug("Manual action to water for {} minutes (upper) and {} minutes (lower)",
+                numberOfMinutesUpper, numberOfMinutesLower);
+
         final WateringJobData current = wateringJobDataRepository.findFirstByOrderByNextRunDesc();
-        if (current != null && current.getMinutesLeft() > 0) {
+        if (current != null && (current.getMinutesLeftUpper() > 0 || current.getMinutesLeftLower() > 0)) {
             throw new IllegalStateException("There is already an active wateringJob at the moment");
         }
-        final WateringJobData data = new WateringJobData(numberOfMinutes);
+        final WateringJobData data = new WateringJobData(numberOfMinutesUpper, numberOfMinutesLower);
         wateringJobDataRepository.save(data);
         return ResponseEntity.ok().build();
     }
@@ -178,11 +199,11 @@ public class WateringController {
 
     }
 
-    @RequestMapping(value = "/checkjob")
+    @RequestMapping(value = "/runDailyJob")
     @ResponseStatus(value = HttpStatus.OK)
-    public void checkWaterJob() {
-        LOG.info("checkWaterJob");
-        wateringJobService.checkWateringJob(true);
+    public void runDailyJob() {
+        LOG.info("runDailyJob");
+        dailyWateringJobService.checkWateringJob(true);
     }
 
     @PostMapping(value = "/killCurrentJob")
@@ -192,8 +213,25 @@ public class WateringController {
         waterValveService.openLowerValve(0);
         waterValveService.openUpperValve(0);
         final WateringJobData data = wateringJobDataRepository.findFirstByOrderByNextRunDesc();
-        data.setMinutesLeft(0);
+        data.setMinutesLeftUpper(0);
+        data.setMinutesLeftLower(0);
         data.setType(WateringJobType.ENFORCED);
         wateringJobDataRepository.save(data);
     }
+
+    @GetMapping(value = "/testupper10sec")
+    @ResponseStatus(value = HttpStatus.OK)
+    public void testupper10sec() {
+        LOG.info("testupper10sec");
+        waterValveService.openUpperValve(10);
+    }
+
+    @GetMapping(value = "/testlower10sec")
+    @ResponseStatus(value = HttpStatus.OK)
+    public void testlower10sec() {
+        LOG.info("testlower10sec");
+        waterValveService.openLowerValve(10);
+    }
+
+
 }

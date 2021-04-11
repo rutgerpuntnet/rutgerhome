@@ -4,7 +4,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,9 +47,13 @@ public class WateringJobData {
     @Column(precision=3, scale=1)
     private Double maxTemperature;
     @Column(length=2)
-    private int numberOfMinutes;
+    private int numberOfMinutesUpper;
     @Column(length=2)
-    private int minutesLeft;
+    private int minutesLeftUpper;
+    @Column(length=2)
+    private int numberOfMinutesLower;
+    @Column(length=2)
+    private int minutesLeftLower;
 
     @Enumerated(EnumType.STRING)
     private WateringJobType type;
@@ -50,16 +61,19 @@ public class WateringJobData {
     private LocalDateTime nextRun;
 
     @ManyToOne
-    private StaticWateringData staticWateringData;
+    private StaticWateringData upperStaticWateringData;
+
+    @ManyToOne
+    private StaticWateringData lowerStaticWateringData;
 
     @ManyToOne
     private WateringJobEnforceData enforceData;
 
-    public WateringJobData(final Optional<Map<WeatherDataType, Double>> weatherData, final int numberOfMinutes,
-                           final WateringJobType type, final StaticWateringData staticWateringData,
-                           final WateringJobEnforceData enforceData) {
-        this.numberOfMinutes = numberOfMinutes;
-        this.minutesLeft = numberOfMinutes;
+    public WateringJobData(final Optional<Map<WeatherDataType, Double>> weatherData, final int numberOfMinutesUpper,
+                           final int numberOfMinutesLower, final WateringJobType type, final StaticWateringData upperStaticWateringData,
+                           final StaticWateringData lowerStaticWateringData, final WateringJobEnforceData enforceData) {
+        this.numberOfMinutesUpper = numberOfMinutesUpper;
+        this.minutesLeftLower = numberOfMinutesLower;
         this.localDate = LocalDate.now();
         if (weatherData.isPresent()) {
             this.makkinkIndex = weatherData.get().get(WeatherDataType.EV24);
@@ -70,13 +84,16 @@ public class WateringJobData {
         }
         this.nextRun = LocalDateTime.now();
         this.type = type;
-        this.staticWateringData = staticWateringData;
+        this.upperStaticWateringData = upperStaticWateringData;
+        this.lowerStaticWateringData = lowerStaticWateringData;
         this.enforceData = enforceData;
     }
 
-    public WateringJobData(final int manualNumberOfMinutes) {
-        this.numberOfMinutes = manualNumberOfMinutes;
-        this.minutesLeft = numberOfMinutes;
+    public WateringJobData(final int manualNumberOfMinutesUpper, final int manualNumberOfMinutesLower) {
+        this.numberOfMinutesUpper = manualNumberOfMinutesUpper;
+        this.numberOfMinutesLower = manualNumberOfMinutesUpper;
+        this.minutesLeftUpper = manualNumberOfMinutesLower;
+        this.minutesLeftUpper = manualNumberOfMinutesLower;
         this.localDate = LocalDate.now();
         this.nextRun = LocalDateTime.now();
         this.type = WateringJobType.MANUAL;
@@ -117,8 +134,8 @@ public class WateringJobData {
     public String getUsedFactorString() {
         if (enforceData != null) {
             return enforceData.getMultiplyFactorString();
-        } else if (staticWateringData != null) {
-            return staticWateringData.getFactorString();
+        } else if (lowerStaticWateringData != null) {
+            return lowerStaticWateringData.getFactorString();
         } else {
             return "";
         }

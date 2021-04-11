@@ -27,8 +27,10 @@ public class EmailServiceTest {
     @Test
     public void testEmail() {
         WateringJobData wateringJobData = new WateringJobData();
-        wateringJobData.setMinutesLeft(10);
-        wateringJobData.setMinutesLeft(4);
+        wateringJobData.setMinutesLeftUpper(10);
+        wateringJobData.setMinutesLeftLower(5);
+        wateringJobData.setMinutesLeftUpper(4);
+        wateringJobData.setMinutesLeftLower(2);
         wateringJobData.setNextRun(LocalDateTime.now());
         emailService.emailWateringResult(wateringJobData);
     }

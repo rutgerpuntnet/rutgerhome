@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Data
+//TODO RJ add lower valve data
 public class HistoryTableData {
 
     final List<HistoryTableColumns> columns = new ArrayList<>();
@@ -27,29 +28,30 @@ public class HistoryTableData {
             line.add(jobData.getPrecipitationDurationString());
             line.add(jobData.getMeanTemperatureString());
             line.add(jobData.getMaxTemperatureString());
-            line.add(String.valueOf(jobData.getNumberOfMinutes()));
+            line.add(String.valueOf(jobData.getNumberOfMinutesUpper()));
+            line.add(String.valueOf(jobData.getNumberOfMinutesLower()));
             line.add(jobData.getType() == null ? "" : jobData.getType().name());
 
-            final StaticWateringData staticData = jobData.getStaticWateringData();
+            final StaticWateringData lowerStaticData = jobData.getLowerStaticWateringData();
             final WateringJobEnforceData enforceData = jobData.getEnforceData();
             if (enforceData != null) {
                 line.add(enforceData.getMultiplyFactorString());
-            } else if (staticData != null) {
-                line.add(staticData.getFactorString());
+            } else if (lowerStaticData != null) {
+                line.add(lowerStaticData.getFactorString());
             } else {
                 line.add("");
             }
 
-            if (staticData == null) {
+            if (lowerStaticData == null) {
                 for(int i = 0; i<8; i++) {
                     line.add("");
                 }
             } else {
-                line.add(String.valueOf(staticData.getInitialMm()));
-                line.add(String.valueOf(staticData.getDailyLimitMinutes()));
-                line.add(String.valueOf(staticData.getMinutesPerMm()));
-                line.add(staticData.getMaxDurationMinutes() + " / " + staticData.getIntervalMinutes() + " min.");
-                line.add(staticData.getLastModified().format(DateTimeFormatter.ISO_LOCAL_DATE));
+                line.add(String.valueOf(lowerStaticData.getInitialMm()));
+                line.add(String.valueOf(lowerStaticData.getDailyLimitMinutes()));
+                line.add(String.valueOf(lowerStaticData.getMinutesPerMm()));
+                line.add(lowerStaticData.getMaxDurationMinutes() + " / " + lowerStaticData.getIntervalMinutes() + " min.");
+                line.add(lowerStaticData.getLastModified().format(DateTimeFormatter.ISO_LOCAL_DATE));
             }
             rows.add(line);
         }
@@ -60,7 +62,8 @@ public class HistoryTableData {
         columns.add(new HistoryTableColumns("Neerslag hr"));
         columns.add(new HistoryTableColumns("Gem. temp."));
         columns.add(new HistoryTableColumns("Max. temp."));
-        columns.add(new HistoryTableColumns("# minuten"));
+        columns.add(new HistoryTableColumns("# minuten boven"));
+        columns.add(new HistoryTableColumns("# minuten onder"));
         columns.add(new HistoryTableColumns("Type"));
         columns.add(new HistoryTableColumns("Factor"));
         columns.add(new HistoryTableColumns("Initieel mm."));

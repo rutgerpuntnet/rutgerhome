@@ -35,13 +35,13 @@ public class EmailService {
         message.setFrom("Terrassproeier <"+emailSenderAddress+">");
         message.setTo(emailRecipients.toArray(new String[emailRecipients.size()]));
         String subject = "Terrassproeier sproeit vandaag ";
-        if (wateringJobData.getNumberOfMinutes() == 0) {
+        if (wateringJobData.getNumberOfMinutesUpper() + wateringJobData.getNumberOfMinutesLower() == 0) {
             subject += "NIET";
         } else {
             if (wateringJobData.getMakkinkIndex() == null) {
                 subject += "de STANDAARD ";
             }
-            subject += wateringJobData.getNumberOfMinutes() + " minuten";
+            subject += wateringJobData.getNumberOfMinutesUpper() + "/" + wateringJobData.getNumberOfMinutesLower() + " minuten";
         }
         message.setSubject(subject);
 

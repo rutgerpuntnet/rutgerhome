@@ -12,6 +12,7 @@ public class HistoryGraphData {
     List<String> labels = new ArrayList<>();
     List<Double> precipitation = new ArrayList<>();
     List<Double> makkink = new ArrayList<>();
-    List<Integer> duration = new ArrayList<>();
+    List<Integer> durationUpper = new ArrayList<>();
+    List<Integer> durationLower = new ArrayList<>();
 
 }

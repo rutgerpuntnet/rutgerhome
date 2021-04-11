@@ -1,6 +1,11 @@
 package net.rutger.home.service;
 
-import net.rutger.home.domain.*;
+import net.rutger.home.domain.StaticWateringData;
+import net.rutger.home.domain.ValveType;
+import net.rutger.home.domain.WateringJobData;
+import net.rutger.home.domain.WateringJobEnforceData;
+import net.rutger.home.domain.WateringJobType;
+import net.rutger.home.domain.WeatherDataType;
 import net.rutger.home.repository.WateringJobDataRepository;
 import net.rutger.home.repository.WateringJobEnforceDataRepository;
 import org.slf4j.Logger;
@@ -12,9 +17,13 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * This service is called daily by a scheduler task. The actual schedule will call it several
+ * times until it got a response from the weather service.
+ */
 @Service
-public class WateringJobService {
-    private final static Logger LOG = LoggerFactory.getLogger(WateringJobService.class);
+public class DailyWateringJobService {
+    private final static Logger LOG = LoggerFactory.getLogger(DailyWateringJobService.class);
 
     @Autowired
     private StaticWateringDataService staticWateringDataService;
@@ -54,11 +63,13 @@ public class WateringJobService {
      */
     private void createAndStoreWateringJobData(final Optional<Map<WeatherDataType, Double>> weatherData) {
         final WateringJobEnforceData enforceData = wateringJobEnforceDataRepository.findFirstByLocalDate(LocalDate.now());
-        final StaticWateringData staticData = staticWateringDataService.getLatest();
-        final int minutes = determineMinutes(weatherData, enforceData, staticData);
+        final StaticWateringData upperStaticData = staticWateringDataService.getLatest(ValveType.UPPER);
+        final StaticWateringData lowerStaticData = staticWateringDataService.getLatest(ValveType.LOWER);
+        final int upperMinutes = determineMinutes(weatherData, enforceData, upperStaticData);
+        final int lowerMinutes = determineMinutes(weatherData, enforceData, lowerStaticData);
 
-        final WateringJobData wateringJobData = new WateringJobData(weatherData, minutes,
-                enforceData == null ? WateringJobType.AUTO : WateringJobType.ENFORCED, staticData, enforceData);
+        final WateringJobData wateringJobData = new WateringJobData(weatherData, upperMinutes, lowerMinutes,
+                enforceData == null ? WateringJobType.AUTO : WateringJobType.ENFORCED, upperStaticData, lowerStaticData, enforceData);
 
         wateringJobDataRepository.save(wateringJobData);
         LOG.info("Saved new WateringJobData: {}", wateringJobData);

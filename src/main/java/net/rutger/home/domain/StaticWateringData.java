@@ -6,11 +6,20 @@ import lombok.ToString;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Static data, or settings, used to determine the effective/resulting wateringData used in job
+ * These settings are maintained in the frontend
+ */
 @Entity
 @Data
 @ToString
@@ -32,13 +41,16 @@ public class StaticWateringData {
     private int maxDurationMinutes = 2;
     private int initialMm = 1;
     private int intervalMinutes = 5;
+    private ValveType valveType;
 
     @LastModifiedDate
     private LocalDateTime lastModified;
 
-    public StaticWateringData(final StaticWateringData origin, Double factor, Integer minutesPerMm,
-                              final Integer defaultMinutes, final Integer dailyLimitMinutes, final Integer maxDurationMinutes,
+    public StaticWateringData(final ValveType type, final StaticWateringData origin, final Double factor,
+                              final Integer minutesPerMm, final Integer defaultMinutes,
+                              final Integer dailyLimitMinutes, final Integer maxDurationMinutes,
                               final Integer initialMm, final Integer intervalMinutes) {
+        this.valveType = type;
         this.factor = factor == null ? origin.getFactor() : factor;
         this.minutesPerMm = minutesPerMm == null ? origin.getMinutesPerMm() : minutesPerMm;
         this.defaultMinutes = defaultMinutes == null ? origin.getDefaultMinutes() : defaultMinutes;
