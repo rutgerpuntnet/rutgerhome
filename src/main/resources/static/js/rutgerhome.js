@@ -24,8 +24,10 @@ function loadLatestData() {
             $('#latestPrecipDuration').text(response.latestJob.precipitationDurationString);
             $('#latestMaxTemp').text(response.latestJob.maxTemperatureString);
             $('#latestMeanTemp').text(response.latestJob.meanTemperatureString);
-            $('#latestNumberOfMinutes').text(response.latestJob.numberOfMinutes);
-            $('#latestMinutesLeft').text(response.latestJob.minutesLeft);
+            $('#latestNumberOfMinutesUpper').text(response.latestJob.numberOfMinutesUpper);
+            $('#latestNumberOfMinutesLower').text(response.latestJob.numberOfMinutesLower);
+            $('#latestMinutesLeftUpper').text(response.latestJob.minutesLeftUpper);
+            $('#latestMinutesLeftLower').text(response.latestJob.minutesLeftLower);
             $('#latestFactor').text(response.latestJob.usedFactorString);
 
             if(response.latestJob.minutesLeft > 0) {
