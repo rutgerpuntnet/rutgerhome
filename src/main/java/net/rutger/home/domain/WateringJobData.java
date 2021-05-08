@@ -89,11 +89,14 @@ public class WateringJobData {
         this.enforceData = enforceData;
     }
 
-    public WateringJobData(final int manualNumberOfMinutesUpper, final int manualNumberOfMinutesLower) {
+    public WateringJobData(final int manualNumberOfMinutesUpper, final int manualNumberOfMinutesLower,
+            final StaticWateringData upperStaticWateringData, final StaticWateringData lowerStaticWateringData) {
+        this.upperStaticWateringData = upperStaticWateringData;
+        this.lowerStaticWateringData = lowerStaticWateringData;
         this.numberOfMinutesUpper = manualNumberOfMinutesUpper;
-        this.numberOfMinutesLower = manualNumberOfMinutesUpper;
-        this.minutesLeftUpper = manualNumberOfMinutesLower;
-        this.minutesLeftUpper = manualNumberOfMinutesLower;
+        this.numberOfMinutesLower = manualNumberOfMinutesLower;
+        this.minutesLeftUpper = manualNumberOfMinutesUpper;
+        this.minutesLeftLower = manualNumberOfMinutesLower;
         this.localDate = LocalDate.now();
         this.nextRun = LocalDateTime.now();
         this.type = WateringJobType.MANUAL;

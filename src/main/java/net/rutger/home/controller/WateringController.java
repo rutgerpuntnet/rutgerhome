@@ -16,6 +16,7 @@ import net.rutger.home.repository.WateringActionRepository;
 import net.rutger.home.repository.WateringJobDataRepository;
 import net.rutger.home.repository.WateringJobEnforceDataRepository;
 import net.rutger.home.service.DailyWateringJobService;
+import net.rutger.home.service.StaticWateringDataService;
 import net.rutger.home.service.WaterValveService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,9 @@ public class WateringController {
     @Autowired
     private StaticWateringDataRepository staticWateringDataRepository;
 
+    @Autowired
+    private StaticWateringDataService staticWateringDataService;
+
     @GetMapping("/status")
     public WateringStatus getStatus() {
         final WateringStatus result = new WateringStatus();
@@ -79,6 +83,10 @@ public class WateringController {
             result.setNextRunDay("Vandaag");
             final WateringJobEnforceData enforceData = wateringJobEnforceDataRepository.findFirstByLocalDate(LocalDate.now());
             result.setNextEnforceFactor(enforceData == null ? null : enforceData.getMultiplyFactor());
+        }
+        if (result.getLatestJob() == null) {
+            result.setLatestJob(new WateringJobData()); // create dummy if no (first) value
+            result.getLatestJob().setLocalDate(LocalDate.of(1976,8,8));
         }
         LOG.debug("status: {} ", result);
         return result;
@@ -156,7 +164,9 @@ public class WateringController {
         if (current != null && (current.getMinutesLeftUpper() > 0 || current.getMinutesLeftLower() > 0)) {
             throw new IllegalStateException("There is already an active wateringJob at the moment");
         }
-        final WateringJobData data = new WateringJobData(numberOfMinutesUpper, numberOfMinutesLower);
+        final StaticWateringData upperStaticData = staticWateringDataService.getLatest(ValveType.UPPER);
+        final StaticWateringData lowerStaticData = staticWateringDataService.getLatest(ValveType.LOWER);
+        final WateringJobData data = new WateringJobData(numberOfMinutesUpper, numberOfMinutesLower, upperStaticData, lowerStaticData);
         wateringJobDataRepository.save(data);
         return ResponseEntity.ok().build();
     }

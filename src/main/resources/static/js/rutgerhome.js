@@ -5,7 +5,8 @@ $( document ).ready(function() {
     loadStaticDataLower();
 
     setNewNextFactorSliderListener();
-    setStaticFactorSliderListener();
+    setStaticFactorSliderListenerUpper();
+    setStaticFactorSliderListenerLower();
 });
 
 function loadLatestData() {
