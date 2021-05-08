@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Repository
 public interface WateringJobDataRepository extends JpaRepository<WateringJobData, Long> {
 
-    @Query("select w from WateringJobData w where w.localDate = ?1 and w.minutesLeft > 0 and w.nextRun < ?2")
+    @Query("select w from WateringJobData w where w.localDate = ?1 and (w.minutesLeftUpper > 0 or w.minutesLeftLower > 0) and w.nextRun < ?2")
     WateringJobData findFirstActiveWateringJob(final LocalDate localDate, final LocalDateTime nextRun);
 
     WateringJobData findFirstByOrderByNextRunDesc();

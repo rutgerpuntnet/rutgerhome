@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Data
-//TODO RJ add lower valve data
+//TODO RJ add upper valve data
 public class HistoryTableData {
 
     final List<HistoryTableColumns> columns = new ArrayList<>();

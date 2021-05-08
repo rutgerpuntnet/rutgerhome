@@ -132,7 +132,7 @@
                     <h4 class="card-title text-primary"><a>Factor aanpassen</a></h4>
                     <!-- Text -->
                     <p class="card-text">Eerstvolgende job: <span id="nextJob">vandaag</span></p>
-                    <p id="nextFactorAvailable" style="display: none">Voor deze job is reeds een factor van <span id="nextFactor"></span> vastgelegd</p>
+                    <p id="nextFactorAvailable" style="display: none">Voor deze job is een factor van <span id="nextFactor"></span> vastgelegd</p>
 
                     <div class="container">
                         <div class="row">
@@ -146,6 +146,7 @@
                             <button id="sendRange" type="button" class="btn btn-primary">Opslaan</button>
                         </div>
                     </div>
+                    <p>De factor geldt voor zowel boven als onder</p>
 
                 </div>
 
@@ -164,14 +165,41 @@
                   <!-- Title -->
                   <h4 class="card-title text-primary"><a>Losse sproeibeurt</a></h4>
                   <!-- Text -->
-                  <p class="card-text" id="manualJobIntro">Voer een losse sproeibeurt uit die direct begint.</p>
+                  <p class="card-text" id="manualJobIntro">Voer een losse sproeibeurt uit die direct begint!</p>
                   <p id="manualJobAlertSoon" style="display: none; color: red;">Let op! Tussen 8 en 9 uur zal al een geautomatiseerde sproeibeurt starten!</p>
                   <p id="manualJobAlertActive" style="display: none; color: red;">Let op! Er is momenteel al een sproeibeurt actief. Deze actie is nu niet mogelijk!</p>
 
                   <dl class="row" style="margin-top: 15px;">
-                      <dt class="col-sm-6">Aantal minuten</dt>
+                      <dt class="col-sm-6">Aantal minuten boven</dt>
                       <dd class="col-sm-6">
-                          <select id="minutesManual" class="browser-default custom-select w-auto">
+                          <select id="minutesManualUpper" class="browser-default custom-select w-auto">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option selected>5</option>
+                              <option>6</option>
+                              <option>7</option>
+                              <option>8</option>
+                              <option>9</option>
+                              <option>10</option>
+                              <option>11</option>
+                              <option>12</option>
+                              <option>13</option>
+                              <option>14</option>
+                              <option>15</option>
+                              <option>16</option>
+                              <option>17</option>
+                              <option>18</option>
+                              <option>19</option>
+                              <option>20</option>
+                          </select>
+                      </dd>
+                  </dl>
+                  <dl class="row" style="margin-top: 15px;">
+                      <dt class="col-sm-6">Aantal minuten onder</dt>
+                      <dd class="col-sm-6">
+                          <select id="minutesManualLower" class="browser-default custom-select w-auto">
                               <option>1</option>
                               <option>2</option>
                               <option>3</option>
@@ -209,164 +237,319 @@
 
 
 
-            <!-- Static data Card -->
-            <div class="card" style="margin-top: 15px;">
+          <!-- Upper static data Card -->
+          <div class="card" style="margin-top: 15px;">
 
-                <!-- Card content -->
-                <div class="card-body" >
+              <!-- Card content -->
+              <div class="card-body" >
 
-                    <h4 class="card-title text-primary"><a>Instellingen (sinds <span id="staticDataModifiedSince"></span>)</a></h4>
-                    <dl class="row w-100">
-                        <input type="range" class="custom-range col" id="staticFactor" min="0" max="2" step="0.1" style="margin-left: 15px;">
-                        <span id="staticFactorValueSpan" class="font-weight-bold text-primary ml-2 valueSpan2" style=""></span>
-                    </dl>
-                    <dl class="row">
-                        <dt class="col-sm-6">Minuten sproeien per mm aanvulling</dt>
-                        <dd class="col-sm-6">
-                            <select id="minutesPerMm" class="browser-default custom-select w-auto">
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                                <option>6</option>
-                                <option>7</option>
-                                <option>8</option>
-                                <option>9</option>
-                                <option>10</option>
-                            </select>
-                        </dd>
-                    </dl>
+                  <h4 class="card-title text-primary"><a>Instellingen boven (sinds <span id="staticDataModifiedSinceUpper"></span>)</a></h4>
+                  <dl class="row w-100">
+                      <input type="range" class="custom-range col" id="staticFactorUpper" min="0" max="2" step="0.1" style="margin-left: 15px;">
+                      <span id="staticFactorValueSpanUpper" class="font-weight-bold text-primary ml-2 valueSpan2" style=""></span>
+                  </dl>
+                  <dl class="row">
+                      <dt class="col-sm-6">Minuten sproeien per mm aanvulling</dt>
+                      <dd class="col-sm-6">
+                          <select id="minutesPerMmUpper" class="browser-default custom-select w-auto">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                              <option>6</option>
+                              <option>7</option>
+                              <option>8</option>
+                              <option>9</option>
+                              <option>10</option>
+                          </select>
+                      </dd>
+                  </dl>
 
-                    <dl class="row">
-                        <dt class="col-sm-6">Standaard minuten (bij gebrek KNMI gegevens)</dt>
-                        <dd class="col-sm-6">
-                            <select id="defaultMinutes" class="browser-default custom-select w-auto">
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                                <option>6</option>
-                                <option>7</option>
-                                <option>8</option>
-                                <option>9</option>
-                                <option>10</option>
-                                <option>11</option>
-                                <option>12</option>
-                                <option>13</option>
-                                <option>14</option>
-                                <option>15</option>
-                                <option>16</option>
-                                <option>17</option>
-                                <option>18</option>
-                                <option>19</option>
-                                <option>20</option>
-                            </select>
-                        </dd>
-                    </dl>
+                  <dl class="row">
+                      <dt class="col-sm-6">Standaard minuten (bij gebrek KNMI gegevens)</dt>
+                      <dd class="col-sm-6">
+                          <select id="defaultMinutesUpper" class="browser-default custom-select w-auto">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                              <option>6</option>
+                              <option>7</option>
+                              <option>8</option>
+                              <option>9</option>
+                              <option>10</option>
+                              <option>11</option>
+                              <option>12</option>
+                              <option>13</option>
+                              <option>14</option>
+                              <option>15</option>
+                              <option>16</option>
+                              <option>17</option>
+                              <option>18</option>
+                              <option>19</option>
+                              <option>20</option>
+                          </select>
+                      </dd>
+                  </dl>
 
-                    <dl class="row">
-                        <dt class="col-sm-6">Dagelijkse limiet per run</dt>
-                        <dd class="col-sm-6">
-                            <select id="dailyLimitMinutes" class="browser-default custom-select w-auto">
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                                <option>6</option>
-                                <option>7</option>
-                                <option>8</option>
-                                <option>9</option>
-                                <option>10</option>
-                                <option>11</option>
-                                <option>12</option>
-                                <option>13</option>
-                                <option>14</option>
-                                <option>15</option>
-                                <option>16</option>
-                                <option>17</option>
-                                <option>18</option>
-                                <option>19</option>
-                                <option>20</option>
-                                <option>21</option>
-                                <option>22</option>
-                                <option>23</option>
-                                <option>24</option>
-                                <option>25</option>
-                                <option>26</option>
-                                <option>27</option>
-                                <option>28</option>
-                                <option>29</option>
-                                <option>30</option>
-                                <option>99</option>
-                            </select>
-                        </dd>
-                    </dl>
+                  <dl class="row">
+                      <dt class="col-sm-6">Dagelijkse limiet per run</dt>
+                      <dd class="col-sm-6">
+                          <select id="dailyLimitMinutesUpper" class="browser-default custom-select w-auto">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                              <option>6</option>
+                              <option>7</option>
+                              <option>8</option>
+                              <option>9</option>
+                              <option>10</option>
+                              <option>11</option>
+                              <option>12</option>
+                              <option>13</option>
+                              <option>14</option>
+                              <option>15</option>
+                              <option>16</option>
+                              <option>17</option>
+                              <option>18</option>
+                              <option>19</option>
+                              <option>20</option>
+                              <option>21</option>
+                              <option>22</option>
+                              <option>23</option>
+                              <option>24</option>
+                              <option>25</option>
+                              <option>26</option>
+                              <option>27</option>
+                              <option>28</option>
+                              <option>29</option>
+                              <option>30</option>
+                              <option>99</option>
+                          </select>
+                      </dd>
+                  </dl>
 
-                    <dl class="row">
-                        <dt class="col-sm-6">Maximum aantal minuten achter elkaar</dt>
-                        <dd class="col-sm-6">
-                            <select id="maxDurationMinutes" class="browser-default custom-select w-auto">
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                                <option>6</option>
-                            </select>
-                        </dd>
-                    </dl>
+                  <dl class="row">
+                      <dt class="col-sm-6">Maximum aantal minuten achter elkaar</dt>
+                      <dd class="col-sm-6">
+                          <select id="maxDurationMinutesUpper" class="browser-default custom-select w-auto">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                              <option>6</option>
+                          </select>
+                      </dd>
+                  </dl>
 
-                    <dl class="row">
-                        <dt class="col-sm-6">Initiele aanvulling in millimeters</dt>
-                        <dd class="col-sm-6">
-                            <select id="initialMm" class="browser-default custom-select w-auto">
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                                <option>6</option>
-                            </select>
-                        </dd>
-                    </dl>
+                  <dl class="row">
+                      <dt class="col-sm-6">Initiele aanvulling in millimeters</dt>
+                      <dd class="col-sm-6">
+                          <select id="initialMmUpper" class="browser-default custom-select w-auto">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                              <option>6</option>
+                          </select>
+                      </dd>
+                  </dl>
 
-                    <dl class="row">
-                        <dt class="col-sm-6">Interval in minuten</dt>
-                        <dd class="col-sm-6">
-                            <select id="intervalMinutes" class="browser-default custom-select w-auto">
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                                <option>6</option>
-                                <option>7</option>
-                                <option>8</option>
-                                <option>9</option>
-                                <option>10</option>
-                                <option>11</option>
-                                <option>12</option>
-                                <option>13</option>
-                                <option>14</option>
-                                <option>15</option>
-                            </select>
-                        </dd>
-                    </dl>
-                    <div class="container">
-                        <div class="row">
-                            <button id="sendStaticData" type="button" class="btn btn-primary">Opslaan</button>
-                        </div>
-                    </div>
+                  <dl class="row">
+                      <dt class="col-sm-6">Interval in minuten</dt>
+                      <dd class="col-sm-6">
+                          <select id="intervalMinutesUpper" class="browser-default custom-select w-auto">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                              <option>6</option>
+                              <option>7</option>
+                              <option>8</option>
+                              <option>9</option>
+                              <option>10</option>
+                              <option>11</option>
+                              <option>12</option>
+                              <option>13</option>
+                              <option>14</option>
+                              <option>15</option>
+                          </select>
+                      </dd>
+                  </dl>
+                  <div class="container">
+                      <div class="row">
+                          <button id="sendStaticDataUpper" type="button" class="btn btn-primary">Opslaan</button>
+                      </div>
+                  </div>
 
-                </div>
+              </div>
 
-            </div>
-            <!-- End Card -->
+          </div>
+          <!-- End Card -->
 
+          <!-- Static data Card -->
+          <div class="card" style="margin-top: 15px;">
 
+              <!-- Card content -->
+              <div class="card-body" >
+
+                  <h4 class="card-title text-primary"><a>Instellingen beneden (sinds <span id="staticDataModifiedSinceLower"></span>)</a></h4>
+                  <dl class="row w-100">
+                      <input type="range" class="custom-range col" id="staticFactorLower" min="0" max="2" step="0.1" style="margin-left: 15px;">
+                      <span id="staticFactorValueSpanLower" class="font-weight-bold text-primary ml-2 valueSpan2" style=""></span>
+                  </dl>
+                  <dl class="row">
+                      <dt class="col-sm-6">Minuten sproeien per mm aanvulling</dt>
+                      <dd class="col-sm-6">
+                          <select id="minutesPerMmLower" class="browser-default custom-select w-auto">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                              <option>6</option>
+                              <option>7</option>
+                              <option>8</option>
+                              <option>9</option>
+                              <option>10</option>
+                          </select>
+                      </dd>
+                  </dl>
+
+                  <dl class="row">
+                      <dt class="col-sm-6">Standaard minuten (bij gebrek KNMI gegevens)</dt>
+                      <dd class="col-sm-6">
+                          <select id="defaultMinutesLower" class="browser-default custom-select w-auto">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                              <option>6</option>
+                              <option>7</option>
+                              <option>8</option>
+                              <option>9</option>
+                              <option>10</option>
+                              <option>11</option>
+                              <option>12</option>
+                              <option>13</option>
+                              <option>14</option>
+                              <option>15</option>
+                              <option>16</option>
+                              <option>17</option>
+                              <option>18</option>
+                              <option>19</option>
+                              <option>20</option>
+                          </select>
+                      </dd>
+                  </dl>
+
+                  <dl class="row">
+                      <dt class="col-sm-6">Dagelijkse limiet per run</dt>
+                      <dd class="col-sm-6">
+                          <select id="dailyLimitMinutesLower" class="browser-default custom-select w-auto">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                              <option>6</option>
+                              <option>7</option>
+                              <option>8</option>
+                              <option>9</option>
+                              <option>10</option>
+                              <option>11</option>
+                              <option>12</option>
+                              <option>13</option>
+                              <option>14</option>
+                              <option>15</option>
+                              <option>16</option>
+                              <option>17</option>
+                              <option>18</option>
+                              <option>19</option>
+                              <option>20</option>
+                              <option>21</option>
+                              <option>22</option>
+                              <option>23</option>
+                              <option>24</option>
+                              <option>25</option>
+                              <option>26</option>
+                              <option>27</option>
+                              <option>28</option>
+                              <option>29</option>
+                              <option>30</option>
+                              <option>99</option>
+                          </select>
+                      </dd>
+                  </dl>
+
+                  <dl class="row">
+                      <dt class="col-sm-6">Maximum aantal minuten achter elkaar</dt>
+                      <dd class="col-sm-6">
+                          <select id="maxDurationMinutesLower" class="browser-default custom-select w-auto">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                              <option>6</option>
+                          </select>
+                      </dd>
+                  </dl>
+
+                  <dl class="row">
+                      <dt class="col-sm-6">Initiele aanvulling in millimeters</dt>
+                      <dd class="col-sm-6">
+                          <select id="initialMmLower" class="browser-default custom-select w-auto">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                              <option>6</option>
+                          </select>
+                      </dd>
+                  </dl>
+
+                  <dl class="row">
+                      <dt class="col-sm-6">Interval in minuten</dt>
+                      <dd class="col-sm-6">
+                          <select id="intervalMinutesLower" class="browser-default custom-select w-auto">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                              <option>6</option>
+                              <option>7</option>
+                              <option>8</option>
+                              <option>9</option>
+                              <option>10</option>
+                              <option>11</option>
+                              <option>12</option>
+                              <option>13</option>
+                              <option>14</option>
+                              <option>15</option>
+                          </select>
+                      </dd>
+                  </dl>
+                  <div class="container">
+                      <div class="row">
+                          <button id="sendStaticDataLower" type="button" class="btn btn-primary">Opslaan</button>
+                      </div>
+                  </div>
+
+              </div>
+
+          </div>
+          <!-- End Card -->
 
       </div>
 

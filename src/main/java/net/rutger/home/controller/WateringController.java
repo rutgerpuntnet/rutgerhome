@@ -161,17 +161,8 @@ public class WateringController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/enforceMinutes")
-    public ResponseEntity enforceWateringJobMinutes(@RequestBody final EnforceData body) {
-        return enforce(body);
-    }
-
     @PostMapping("/enforceFactor")
     public ResponseEntity enforceWateringJobFactor(@RequestBody final EnforceData body) {
-        return enforce(body);
-    }
-
-    private ResponseEntity enforce(final EnforceData body) {
         LOG.debug("Set enforce watering data. Body: {}", body);
         LocalDate localDate = LocalDate.now();
         final WateringJobData wateringJobData = wateringJobDataRepository.findLatestTodaysNonManualJob(localDate);
@@ -191,7 +182,6 @@ public class WateringController {
             LOG.debug("Enforce data already exists. Data will be overwritten");
         }
         enforceData.setMultiplyFactor(body.getFactor());
-        enforceData.setNumberOfMinutes(body.getMinutes());
 
         LOG.debug("Saving enforceData: {}", enforceData);
         wateringJobEnforceDataRepository.save(enforceData);

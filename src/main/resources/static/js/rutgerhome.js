@@ -1,7 +1,8 @@
 $( document ).ready(function() {
     console.log( "Document ready!" );
     loadLatestData();
-    loadStaticData();
+    loadStaticDataUpper();
+    loadStaticDataLower();
 
     setNewNextFactorSliderListener();
     setStaticFactorSliderListener();
@@ -101,7 +102,7 @@ $(function () {
         console.log("sendManual click")
 
         $.ajax({
-            url: "/watering/manualAction/" + $('#minutesManual').val(),
+            url: "/watering/manualAction/" + $('#minutesManualUpper').val() + "/" + $('#minutesManualLower').val(),
             type: 'POST',
             success: function (response) {
                 console.log("Done send manual job", response);
@@ -129,11 +130,11 @@ $(function () {
 });
 
 
-function setStaticFactorSliderListener() {
-    console.log("Set staticFactor slider listener");
+function setStaticFactorSliderListenerUpper() {
+    console.log("Set upper staticFactor slider listener");
 
-    const $valueSpan = $('#staticFactorValueSpan');
-    const $value = $('#staticFactor');
+    const $valueSpan = $('#staticFactorValueSpanUpper');
+    const $value = $('#staticFactorUpper');
     $valueSpan.html($value.val());
     $value.on('input change', () => {
         $valueSpan.html($value.val());
@@ -141,55 +142,121 @@ function setStaticFactorSliderListener() {
 }
 
 
-function loadStaticData() {
-    console.log("Get static data");
+function loadStaticDataUpper() {
+    console.log("Get upper static data");
 
     $.ajax({
-        url: "/watering/staticdata",
+        url: "/watering/staticdata/UPPER",
         contentType: "application/json",
         dataType: "json",
         type: 'GET',
         success: function (response) {
-            console.log("Got response from backend (static data):", response);
+            console.log("Got response from backend (upper static data):", response);
 
-            $('#staticDataModifiedSince').text(response.modifiedSince);
-            $('#staticFactor').val(response.factor);
-            $('#staticFactorValueSpan').html(response.factor);
-            $('#minutesPerMm').val(response.minutesPerMm);
-            $('#defaultMinutes').val(response.defaultMinutes);
-            $('#dailyLimitMinutes').val(response.dailyLimitMinutes);
-            $('#maxDurationMinutes').val(response.maxDurationMinutes);
-            $('#initialMm').val(response.initialMm);
-            $('#intervalMinutes').val(response.intervalMinutes);
+            $('#staticDataModifiedSinceUpper').text(response.modifiedSince);
+            $('#staticFactorUpper').val(response.factor);
+            $('#staticFactorValueSpanUpper').html(response.factor);
+            $('#minutesPerMmUpper').val(response.minutesPerMm);
+            $('#defaultMinutesUpper').val(response.defaultMinutes);
+            $('#dailyLimitMinutesUpper').val(response.dailyLimitMinutes);
+            $('#maxDurationMinutesUpper').val(response.maxDurationMinutes);
+            $('#initialMmUpper').val(response.initialMm);
+            $('#intervalMinutesUpper').val(response.intervalMinutes);
 
         }
     });
 }
 
 
-// send static data factor
+// send upper static data factor
 $(function () {
-    $('#sendStaticData').click(function () {
-        console.log("send static data click")
+    $('#sendStaticDataUpper').click(function () {
+        console.log("send upper static data click")
 
         var data = {}  // object to hold the user input data
-        data["factor"] = $('#staticFactor').val()
-        data["minutesPerMm"] = $('#minutesPerMm').val()
-        data["defaultMinutes"] = $('#defaultMinutes').val()
-        data["dailyLimitMinutes"] = $('#dailyLimitMinutes').val()
-        data["maxDurationMinutes"] = $('#maxDurationMinutes').val()
-        data["initialMm"] = $('#initialMm').val()
-        data["intervalMinutes"] = $('#intervalMinutes').val()
+        data["factor"] = $('#staticFactorUpper').val()
+        data["minutesPerMm"] = $('#minutesPerMmUpper').val()
+        data["defaultMinutes"] = $('#defaultMinutesUpper').val()
+        data["dailyLimitMinutes"] = $('#dailyLimitMinutesUpper').val()
+        data["maxDurationMinutes"] = $('#maxDurationMinutesUpper').val()
+        data["initialMm"] = $('#initialMmUpper').val()
+        data["intervalMinutes"] = $('#intervalMinutesUpper').val()
 
-        console.log("Data",data)
+        console.log("Upper data",data)
         $.ajax({
-            url: "/watering/staticdata",
+            url: "/watering/staticdata/UPPER",
             contentType: "application/json",
             data: JSON.stringify(data),
             type: 'POST',
             success: function (response) {
-                console.log("Done set static data", response);
-                loadStaticData();
+                console.log("Done set upper static data", response);
+                loadStaticDataUpper();
+            }
+        });
+    });
+});
+
+
+
+function setStaticFactorSliderListenerLower() {
+    console.log("Set lower staticFactor slider listener");
+
+    const $valueSpan = $('#staticFactorValueSpanLower');
+    const $value = $('#staticFactorLower');
+    $valueSpan.html($value.val());
+    $value.on('input change', () => {
+        $valueSpan.html($value.val());
+    });
+}
+
+function loadStaticDataLower() {
+    console.log("Get lower static data");
+
+    $.ajax({
+        url: "/watering/staticdata/LOWER",
+        contentType: "application/json",
+        dataType: "json",
+        type: 'GET',
+        success: function (response) {
+            console.log("Got response from backend (lower static data):", response);
+
+            $('#staticDataModifiedSinceLower').text(response.modifiedSince);
+            $('#staticFactorLower').val(response.factor);
+            $('#staticFactorValueSpanLower').html(response.factor);
+            $('#minutesPerMmLower').val(response.minutesPerMm);
+            $('#defaultMinutesLower').val(response.defaultMinutes);
+            $('#dailyLimitMinutesLower').val(response.dailyLimitMinutes);
+            $('#maxDurationMinutesLower').val(response.maxDurationMinutes);
+            $('#initialMmLower').val(response.initialMm);
+            $('#intervalMinutesLower').val(response.intervalMinutes);
+
+        }
+    });
+}
+
+// send lower static data factor
+$(function () {
+    $('#sendStaticDataLower').click(function () {
+        console.log("send lower static data click")
+
+        var data = {}  // object to hold the user input data
+        data["factor"] = $('#staticFactorLower').val()
+        data["minutesPerMm"] = $('#minutesPerMmLower').val()
+        data["defaultMinutes"] = $('#defaultMinutesLower').val()
+        data["dailyLimitMinutes"] = $('#dailyLimitMinutesLower').val()
+        data["maxDurationMinutes"] = $('#maxDurationMinutesLower').val()
+        data["initialMm"] = $('#initialMmLower').val()
+        data["intervalMinutes"] = $('#intervalMinutesLower').val()
+
+        console.log("Lower data",data)
+        $.ajax({
+            url: "/watering/staticdata/LOWER",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            type: 'POST',
+            success: function (response) {
+                console.log("Done set lower static data", response);
+                loadStaticDataLower();
             }
         });
     });

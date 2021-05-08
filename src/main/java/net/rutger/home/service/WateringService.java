@@ -42,8 +42,12 @@ public class WateringService {
 
             LOG.info("Watering job ID {} for {} minutes upper, {} minutes lower. MinutesLeft upper now {}, minutesLeft lower now {}",
                     wateringJobData.getId(), upperMinutes, lowerMinutes, wateringJobData.getMinutesLeftUpper(), wateringJobData.getMinutesLeftLower());
-            waterValveService.openUpperValve(upperMinutes*60);
-            waterValveService.openLowerValve(lowerMinutes*60);
+            if (lowerMinutes > 0) {
+                waterValveService.openLowerValve(lowerMinutes*60);
+            }
+            if (upperMinutes > 0) {
+                waterValveService.openUpperValve(upperMinutes*60);
+            }
             wateringJobDataRepository.save(wateringJobData);
         } else {
             LOG.trace("No WateringJob found for now.");

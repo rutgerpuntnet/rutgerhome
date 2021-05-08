@@ -17,8 +17,8 @@ import java.time.LocalDateTime;
  * morning (normal job) it doesn't need to water so many (or the opposite: it is very dry,
  * we need to water longer), it is possible to tell it to the system upfront.
  *
- * If this data is set, the WateringJob will see this and will change the result. The enforcement is either
- * a multiply factor of a fixed number of minutes
+ * If this data is set, the WateringJob will see this and will change the result.
+ * The enforcement contains of a multiply factor (either below or above the default 1.0)
  */
 @Entity
 @Data
@@ -35,15 +35,13 @@ public class WateringJobEnforceData {
     private LocalDate localDate;
 
     @Column(precision=3, scale=1)
-    private Double multiplyFactor;
-
-    private Integer numberOfMinutes;
+    private double multiplyFactor = 1.0;
 
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
     public String getMultiplyFactorString() {
-        return multiplyFactor == null ? "" : DECIMAL_FORMAT.format(multiplyFactor);
+        return DECIMAL_FORMAT.format(multiplyFactor);
     }
 
 }

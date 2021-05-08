@@ -78,34 +78,31 @@ public class DailyWateringJobService {
 
     private int determineMinutes(final Optional<Map<WeatherDataType, Double>> incomingWeatherData,
                                  final WateringJobEnforceData enforceData, final StaticWateringData staticData) {
-        LOG.debug("Determin minutes using staticData: {} ", staticData.toString());
-        int result = staticData.getDefaultMinutes();
-        if (enforceData != null && enforceData.getNumberOfMinutes() != null) {
-            LOG.info("We have enforcement number of minutes for this day. Being: {} minutes", enforceData.getNumberOfMinutes());
-            result = enforceData.getNumberOfMinutes();
-        } else {
-            if (incomingWeatherData.isPresent() && incomingWeatherData.get().get(WeatherDataType.EV24) != null
-                    && incomingWeatherData.get().get(WeatherDataType.RH) != null) {
-                final Double makkink = incomingWeatherData.get().get(WeatherDataType.EV24);
-                final Double totalPrecip = incomingWeatherData.get().get(WeatherDataType.RH);
-                final Double supplementMillimeters = makkink - totalPrecip + staticData.getInitialMm();
-                if (supplementMillimeters > 0) {
-                    final Double factor;
-                    if (enforceData != null && enforceData.getMultiplyFactor() != null) {
-                        LOG.info("We have enforcement data for this day. The result will be multiplied by {}", enforceData.getMultiplyFactor());
-                        factor = enforceData.getMultiplyFactor();
-                    } else {
-                        factor = staticData.getFactor();
-                    }
-
-                    result = Math.toIntExact(Math.round((supplementMillimeters * staticData.getMinutesPerMm()) * factor));
-
-                    // now that we have a result number of minutes. Be sure it's not larger than our daily limit
-                    result = result > staticData.getDailyLimitMinutes() ? staticData.getDailyLimitMinutes() : result;
+        LOG.debug("Determine minutes using staticData: {} ", staticData.toString());
+        final int result;
+        if (incomingWeatherData.isPresent() && incomingWeatherData.get().get(WeatherDataType.EV24) != null
+                && incomingWeatherData.get().get(WeatherDataType.RH) != null) {
+            final Double makkink = incomingWeatherData.get().get(WeatherDataType.EV24);
+            final Double totalPrecip = incomingWeatherData.get().get(WeatherDataType.RH);
+            final Double supplementMillimeters = makkink - totalPrecip + staticData.getInitialMm();
+            if (supplementMillimeters > 0) {
+                final Double factor;
+                if (enforceData != null) {
+                    LOG.info("We have enforcement data for this day. The result will be multiplied by {}", enforceData.getMultiplyFactor());
+                    factor = enforceData.getMultiplyFactor();
                 } else {
-                    result = 0;
+                    factor = staticData.getFactor();
                 }
+
+                final int numberOfMinutes = Math.toIntExact(Math.round((supplementMillimeters * staticData.getMinutesPerMm()) * factor));
+
+                // now that we have a result number of minutes. Be sure it's not larger than our daily limit
+                result = numberOfMinutes > staticData.getDailyLimitMinutes() ? staticData.getDailyLimitMinutes() : numberOfMinutes;
+            } else { // We don't need to water since there was not enough evaporation
+                result = 0;
             }
+        } else { // no weather data? Get the default time to water (And apply a possible enforcement factor)
+            result = Math.toIntExact(Math.round(staticData.getDefaultMinutes() * enforceData.getMultiplyFactor()));
         }
         return result;
     }

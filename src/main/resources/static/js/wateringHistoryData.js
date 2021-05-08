@@ -41,7 +41,7 @@ function loadChartData() {
                             'rgba(200, 99, 132, .7)',
                         ],
                         borderWidth: 2
-                    },
+                        },
                         {
                             label: "Verdamping mm.",
                             data: response.makkink,
@@ -54,13 +54,24 @@ function loadChartData() {
                             borderWidth: 2
                         },
                         {
-                            label: "Sproeiduur minuten",
-                            data: response.duration,
+                            label: "Sproeiduur minuten boven",
+                            data: response.durationUpper,
                             backgroundColor: [
                                 'rgba(255, 159, 64, .2)',
                             ],
                             borderColor: [
                                 'rgba(255, 159, 64, .7)',
+                            ],
+                            borderWidth: 2
+                        },
+                        {
+                            label: "Sproeiduur minuten onder",
+                            data: response.durationLower,
+                            backgroundColor: [
+                                'rgba(64, 255, 159, .2)',
+                            ],
+                            borderColor: [
+                                'rgba(64, 255, 159, .7)',
                             ],
                             borderWidth: 2
                         }
