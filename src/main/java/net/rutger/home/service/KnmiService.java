@@ -6,13 +6,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 @Service
 public class KnmiService {
@@ -33,6 +40,10 @@ public class KnmiService {
         }
     }
 
+    private Optional<Map<WeatherDataType, Double>> getDataFromPreviousDayFromZip() {
+
+
+    }
     /*
      * Parse the given raw weather data from KNMI
      */
@@ -78,6 +89,48 @@ public class KnmiService {
         LOG.debug("Reading data from URL: {}", interpolatedUrl);
 
         final InputStreamReader inputStreamReader = new InputStreamReader(new URL(interpolatedUrl).openStream());
+        final List<String> resultList = new ArrayList<>();
+        try (final BufferedReader in = new BufferedReader(inputStreamReader)) {
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                resultList.add(0, inputLine);
+                LOG.trace("Reading dataline: {}", inputLine);
+            }
+        }
+        LOG.debug("Done reading KNMI data. Resulting in {} lines", resultList.size());
+
+        // The last line (so also last inserted line at position 0 in the List), should contain the actual data
+        if (resultList.size() < 3 || resultList.get(0).startsWith("#") || !resultList.get(0).contains("240")) {
+            LOG.debug("No valid weatherdata found:\n--{}", resultList.get(0));
+            throw new RuntimeException("No valid weatherdata found");
+        } else {
+            return resultList.subList(0, 3);
+        }
+    }
+
+
+    private List<String> readDataFromZip() throws IOException {
+        final String url = "https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/etmgeg_240.zip";
+
+        LOG.debug("Reading zip data from URL: {}", url);
+
+        final BufferedInputStream bufferedInput = new BufferedInputStream(new URL(url).openStream())
+        try (final ZipInputStream zipInput = new ZipInputStream(bufferedInput)) {
+            ZipEntry zipEntry = zipInput.getNextEntry();
+            while (zipEntry != null) {
+                if (!zipEntry.isDirectory()) {
+
+                }
+
+                    zipEntry.get
+                // ...
+            }
+            zipInput.closeEntry();
+        }
+
+
+
+        final InputStreamReader inputStreamReader = new InputStreamReader(new URL(url).openStream());
         final List<String> resultList = new ArrayList<>();
         try (final BufferedReader in = new BufferedReader(inputStreamReader)) {
             String inputLine;
