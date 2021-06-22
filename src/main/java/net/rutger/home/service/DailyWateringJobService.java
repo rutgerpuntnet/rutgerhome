@@ -86,13 +86,7 @@ public class DailyWateringJobService {
             final Double totalPrecip = incomingWeatherData.get().get(WeatherDataType.RH);
             final Double supplementMillimeters = makkink - totalPrecip + staticData.getInitialMm();
             if (supplementMillimeters > 0) {
-                final Double factor;
-                if (enforceData != null) {
-                    LOG.info("We have enforcement data for this day. The result will be multiplied by {}", enforceData.getMultiplyFactor());
-                    factor = enforceData.getMultiplyFactor();
-                } else {
-                    factor = staticData.getFactor();
-                }
+                final Double factor = getFactor(enforceData, staticData);
 
                 final int numberOfMinutes = Math.toIntExact(Math.round((supplementMillimeters * staticData.getMinutesPerMm()) * factor));
 
@@ -102,8 +96,20 @@ public class DailyWateringJobService {
                 result = 0;
             }
         } else { // no weather data? Get the default time to water (And apply a possible enforcement factor)
-            result = Math.toIntExact(Math.round(staticData.getDefaultMinutes() * enforceData.getMultiplyFactor()));
+            final Double factor = getFactor(enforceData, staticData);
+
+            result = Math.toIntExact(Math.round(staticData.getDefaultMinutes() * factor));
         }
         return result;
+    }
+
+    private Double getFactor(final WateringJobEnforceData enforceData, final StaticWateringData staticData) {
+        if (enforceData != null) {
+            LOG.info("We have enforcement data for this day. The result will be multiplied by {}", enforceData.getMultiplyFactor());
+            return enforceData.getMultiplyFactor();
+        } else {
+            return staticData.getFactor();
+        }
+
     }
 }

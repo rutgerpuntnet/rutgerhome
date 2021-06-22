@@ -73,6 +73,8 @@ public class WateringJobData {
                            final int numberOfMinutesLower, final WateringJobType type, final StaticWateringData upperStaticWateringData,
                            final StaticWateringData lowerStaticWateringData, final WateringJobEnforceData enforceData) {
         this.numberOfMinutesUpper = numberOfMinutesUpper;
+        this.numberOfMinutesLower = numberOfMinutesLower;
+        this.minutesLeftUpper = numberOfMinutesUpper;
         this.minutesLeftLower = numberOfMinutesLower;
         this.localDate = LocalDate.now();
         if (weatherData.isPresent()) {
