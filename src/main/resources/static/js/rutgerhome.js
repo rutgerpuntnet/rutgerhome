@@ -32,7 +32,7 @@ function loadLatestData() {
             $('#latestMinutesLeftLower').text(response.latestJob.minutesLeftLower);
             $('#latestFactor').text(response.latestJob.usedFactorString);
 
-            if(response.latestJob.minutesLeft > 0) {
+            if(response.active) {
                 $('#stopCurrentJob').show();
                 $('#manualJobAlertActive').show();
                 $('#sendManual').prop("disabled", true);
