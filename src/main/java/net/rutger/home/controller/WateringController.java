@@ -233,5 +233,19 @@ public class WateringController {
         waterValveService.openLowerValve(10);
     }
 
+    @GetMapping(value = "/force/lower/{numberOfMinutes}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public void forceLower(@PathVariable final int numberOfMinutes) {
+        LOG.info("force lower {} minutes", numberOfMinutes);
+        waterValveService.openLowerValve(numberOfMinutes < 1 ? 1 : numberOfMinutes * 60);
+    }
+
+    @GetMapping(value = "/force/upper/{numberOfMinutes}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public void forceUpper(@PathVariable final int numberOfMinutes) {
+        LOG.info("force upper {} minutes", numberOfMinutes);
+        waterValveService.openUpperValve(numberOfMinutes < 1 ? 1 : numberOfMinutes * 60);
+    }
+
 
 }

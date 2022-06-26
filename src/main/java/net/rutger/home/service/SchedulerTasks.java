@@ -46,8 +46,8 @@ public class SchedulerTasks {
     /**
      * Run the actual watering task that acts upon the results of the wateringJob
      */
-    @Scheduled(fixedRate = 60000)
-    public void runGardenWateringTask() {
+    @Scheduled(fixedRate = 60000)// every minute
+    public void runGardenWateringActionTask() {
         log.trace("run GardenWateringTask");
         wateringService.executeWateringAction();
     }
