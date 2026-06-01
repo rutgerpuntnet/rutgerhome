@@ -4,14 +4,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,7 +28,7 @@ import java.util.Optional;
 @ToString
 @Data
 public class WateringJobData {
-    public static final Locale DUTCH_LOCALE = new Locale("nl", "NL");
+    public static final Locale DUTCH_LOCALE = Locale.of("nl", "NL");
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###.##");
 
     @Id

@@ -10,7 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -89,11 +89,13 @@ public class KnmiService {
         final String url = "https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/etmgeg_240.zip";
         LOG.debug("Reading zip data from URL: {}", url);
 
-        final BufferedInputStream bufferedInput = new BufferedInputStream(new URL(url).openStream());
+        final BufferedInputStream bufferedInput = new BufferedInputStream(URI.create(url).toURL().openStream());
         final List<String> resultList;
         try (final ZipInputStream zipInput = new ZipInputStream(bufferedInput)) {
             final ZipEntry zipEntry = zipInput.getNextEntry();
-            LOG.debug("Reading zipEntry {}",zipEntry.getName());
+            if (zipEntry != null) {
+                LOG.debug("Reading zipEntry {}", zipEntry.getName());
+            }
             resultList = readDataFromStream(zipInput);
         }
         return resultList;
