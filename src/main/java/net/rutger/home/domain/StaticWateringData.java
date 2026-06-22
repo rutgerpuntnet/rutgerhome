@@ -33,7 +33,6 @@ public class StaticWateringData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(precision=3, scale=1)
     private Double factor = 1.0;
     private int minutesPerMm = 3;
     private int defaultMinutes = 10;

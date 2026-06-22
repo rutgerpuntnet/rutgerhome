@@ -12,7 +12,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,23 +28,20 @@ import java.util.Optional;
 @Data
 public class WateringJobData {
     public static final Locale DUTCH_LOCALE = Locale.of("nl", "NL");
-    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###.##");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("EEEE, dd MM YYYY", DUTCH_LOCALE);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private LocalDate localDate;
-    @Column(precision=3, scale=1)
+
     private Double makkinkIndex;
-    @Column(precision=4, scale=1)
     private Double precipitation;
-    @Column(precision=4, scale=1)
     private Double precipitationDuration;
-    @Column(precision=3, scale=1)
     private Double meanTemperature;
-    @Column(precision=3, scale=1)
     private Double maxTemperature;
+
     @Column(length=2)
     private int numberOfMinutesUpper;
     @Column(length=2)
@@ -92,7 +88,7 @@ public class WateringJobData {
     }
 
     public WateringJobData(final int manualNumberOfMinutesUpper, final int manualNumberOfMinutesLower,
-            final StaticWateringData upperStaticWateringData, final StaticWateringData lowerStaticWateringData) {
+                           final StaticWateringData upperStaticWateringData, final StaticWateringData lowerStaticWateringData) {
         this.upperStaticWateringData = upperStaticWateringData;
         this.lowerStaticWateringData = lowerStaticWateringData;
         this.numberOfMinutesUpper = manualNumberOfMinutesUpper;
@@ -107,33 +103,33 @@ public class WateringJobData {
     public String getDay() {
         if (localDate == null) {
             return "";
-        } else if(localDate.isEqual(LocalDate.now())) {
+        } else if (localDate.isEqual(LocalDate.now())) {
             return "Vandaag";
         } else if (localDate.isEqual(LocalDate.now().minusDays(1))) {
             return "Gisteren";
         } else {
-            return localDate.format(DateTimeFormatter.ofPattern("EEEE, dd MM YYYY", DUTCH_LOCALE));
+            return localDate.format(DATE_FORMATTER);
         }
     }
 
     public String getMakkinkIndexString() {
-        return makkinkIndex == null ? "N/A" : DECIMAL_FORMAT.format(makkinkIndex);
+        return formatDouble(makkinkIndex);
     }
 
     public String getPrecipitationString() {
-        return precipitation == null ? "N/A" : DECIMAL_FORMAT.format(precipitation);
+        return formatDouble(precipitation);
     }
 
     public String getPrecipitationDurationString() {
-        return precipitationDuration == null ? "N/A" : DECIMAL_FORMAT.format(precipitationDuration);
+        return formatDouble(precipitationDuration);
     }
 
     public String getMeanTemperatureString() {
-        return meanTemperature == null ? "N/A" : DECIMAL_FORMAT.format(meanTemperature);
+        return formatDouble(meanTemperature);
     }
 
     public String getMaxTemperatureString() {
-        return maxTemperature == null ? "N/A" : DECIMAL_FORMAT.format(maxTemperature);
+        return formatDouble(maxTemperature);
     }
 
     public String getUsedFactorString() {
@@ -144,6 +140,9 @@ public class WateringJobData {
         } else {
             return "";
         }
+    }
 
+    private String formatDouble(Double value) {
+        return value == null ? "N/A" : String.format(DUTCH_LOCALE, "%.2f", value).replaceAll(",00$", "");
     }
 }

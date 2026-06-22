@@ -7,7 +7,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.*;
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -26,7 +25,6 @@ import java.time.LocalDateTime;
 @ToString
 @EntityListeners(AuditingEntityListener.class)
 public class WateringJobEnforceData {
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###.##");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,14 +32,14 @@ public class WateringJobEnforceData {
 
     private LocalDate localDate;
 
-    @Column(precision=3, scale=1)
+    @Column(name = "multiply_factor")
     private double multiplyFactor = 1.0;
 
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
     public String getMultiplyFactorString() {
-        return DECIMAL_FORMAT.format(multiplyFactor);
+        // String.format is een clean alternatief voor DecimalFormat om 1 decimaal af te dwingen
+        return String.format("%.1f", multiplyFactor);
     }
-
 }
